@@ -1,11 +1,9 @@
-quotes:
+quotes-service:
   image: magnuslarsson/quotes:1
-  ports:
-    - "9090:9090"
 
 portal:
   image: magnuslarsson/portal:1
   ports:
     - "8080:8080"
   links:
-    - quotes
+    - quotes-service
