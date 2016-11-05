@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+
+  quotes-service:
+    image: magnuslarsson/quotes:1
+
+  portal:
+    image: magnuslarsson/portal:1
+    ports:
+      - "8080:8080"

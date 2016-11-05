@@ -47,7 +47,21 @@ Wiew host names in portal:
 Wiew IP address in quotes:	
 
 	docker-compose exec index=1 quotes-service hostname -i	docker-compose exec index=2 quotes-service hostname -i
-		
+	
+Shudown
+	
+	docker-comopse down
+			
 # docker-compose v2
+
+Start up and monitor logs:
+
+	cd docker-compose-v2
+	docker-compose up -d && docker-compose logs -f
+
+In another terminal:
+
+	docker-compose exec quotes-service  wget -qO- localhost:9090/quote | jq
+	docker-compose exec portal wget -qO- localhost:8080/home | jq
 
 Restart issues:
