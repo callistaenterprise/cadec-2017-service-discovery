@@ -4,6 +4,8 @@ services:
 
   quotes-service:
     image: magnuslarsson/quotes:1
+    ports:
+      - "9090:9090"
 
   portal:
     image: magnuslarsson/portal:1
