@@ -2,7 +2,7 @@
 
 1. Gå över till docker for mac
 1. Lägg på loggning i Portal!
-1. In med Sleuth
+1. In med Spring Cloud Sleuth
 
 # Setup
 
