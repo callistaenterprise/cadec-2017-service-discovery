@@ -3,6 +3,7 @@
 1. Gå över till docker for mac
 1. Lägg på loggning i Portal!
 1. In med Spring Cloud Sleuth
+1. Lägg på ip-adress i svaret!
 
 # Setup
 
@@ -107,7 +108,7 @@ Verify:
 
 Test:
 
-		docker-compose exec portal wget -qO- localhost:8080/home
+	docker-compose exec portal wget -qO- localhost:8080/home
 
 **NOTE**: FUNKAR, VARFÖR??!?!?!!??!!! Jämför med portal i DMDP
 
@@ -133,3 +134,31 @@ https://github.com/kubernetes/kubernetes/issues/13500
 
 
 # Kubernetes med system space proxy
+
+# Docker Swarm
+
+## Singel node swarm
+
+Only works on experimental/beta docker v1.12...
+
+	docker swarm init
+	docker node ls
+	docker node inspect moby
+	docker-compose bundle
+	docker deploy dockercomposev2
+	docker service ls
+	docker service ps 79hzv4y2x7tu
+	docker service inspect 79hzv4y2x7tu
+	
+	curl localhost:30000/home
+	curl localhost:30002/quote
+	
+	docker service scale dockercomposev2_quotes-service=2
+	
+Scaling works fine!!!
+
+Upgrade a bundle is done with the doker deploy command
+	
+	
+	
+	
