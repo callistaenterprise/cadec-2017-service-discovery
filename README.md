@@ -4,6 +4,13 @@
 1. Lägg på loggning i Portal!
 1. In med Spring Cloud Sleuth
 1. Lägg på ip-adress i svaret!
+1. Skippa Docker DAP bundles
+1. Miljöer:
+	1. Docker for Mac
+	2. Minikube
+	3. Docker Swarn (AWS)
+	4. K8S (GCE)
+	5. No Docker (Eureka/Ribbon)
 
 # Setup
 
@@ -15,11 +22,35 @@ Using Docker for Mac:
 
 	eval $(docker-machine env -u)
 
+# portal.js
+
+Install:
+
+	npm install && bower install
+
+Start:
+
+	node_modules/gulp/bin/gulp.js serve
+
+
+Reverse proxy config is placed in `conf/browsersync.conf.js`.
+
 # Netflix Eureka (no containers)
 
 1. 1 quotes
 2. 2 quotes
 3. restart quotes
+
+Test quotes locally:
+
+	cd quotes
+	./gradlew clean build
+	java -jar build/libs/*.jar
+	java -jar build/libs/*.jar --server.port=8081
+	
+	url -s  localhost:8080/api/quote | jq .
+	url -s  localhost:8081/api/quote | jq .
+	
 
 # docker-compose v1
 
