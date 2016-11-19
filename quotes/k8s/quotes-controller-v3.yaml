@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: quotes-v3
+  labels:
+    app: quotes
+    version: "3"
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    app: quotes
+    version: "3"
+  template:
+    metadata:
+      labels:
+        app: quotes
+        version: "3"
+        tier: backend
+    spec:
+      containers:
+      - name: quotes
+#        image: registry:5000/quotes:1
+#       FOR DEPLOY FROM DOCKERHUB
+        image: magnuslarsson/quotes:3
+        ports:
+        - name: http
+          containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 20
+          timeoutSeconds: 1

@@ -189,7 +189,19 @@ Test:
 
 ...blir ingen ny ip adress dvs, får köra med skala upp till tre och sedan ta bort den första..
 
-# Kubernetes med user space proxy
+# Kubernetes
+
+## Minikube
+
+    minikube start
+    minikube ip
+    minikube status
+    minikube dashboard
+    minikube stop
+
+	eval $(minikube docker-env)
+
+## Kubernetes med user space proxy
 
 kubernetes user space vs system space proxy
 
@@ -200,8 +212,29 @@ https://github.com/kubernetes/kubernetes/issues/12682
 https://github.com/kubernetes/kubernetes/issues/13500
 
 
+## Kubernetes med system space proxy
 
-# Kubernetes med system space proxy
+## Deploy quotes-service and portal.js
+
+Quotes: 
+
+	cd quotes
+	kubectl create -f k8s/quotes-controller-v3.yaml
+	kubectl create -f k8s/quotes-service.yaml
+	
+	kubectl get pods
+	kubectl get replicationController
+	kubectl get svc
+
+	curl 192.168.99.104:30080/api/quote	
+
+Portal:
+
+	cd portal.js
+	kubectl create -f k8s/portal-controller-v1.yaml
+	kubectl create -f k8s/portal-service.yaml
+	
+	curl 192.168.99.104:30090
 
 # Docker Swarm
 
