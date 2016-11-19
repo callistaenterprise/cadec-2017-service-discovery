@@ -238,15 +238,6 @@ Portal:
 
 # Docker Swarm
 
-## Docker Swarm visualiser
-
-	docker service create \
-	  --name=viz \
-	  --publish=8000:8080/tcp \
-	  --constraint=node.role==manager \
-	  --mount=type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
-	  manomarks/visualizer
-
 ## Singel node swarm
 
 Only works on experimental/beta docker v1.12...
@@ -288,11 +279,69 @@ Create nodes:
       --virtualbox-disk-size 20000 \
       swarm-worker-2
       
+Create cluster:      
+
+	docker $(docker-machine config swarm-manager-1) swarm init --advertise-addr $(docker-machine ip swarm-manager-1)
+	docker $(docker-machine config swarm-worker-1)  swarm join \
+	  --token SWMTKN-1-5oj539rqkrlxik0znd8bbqbrkx8vbllmx6j401p3m06648z2p3-9qhmkmgafspg4apmablvmyeqy \
+	  $(docker-machine ip swarm-manager-1):2377
+	docker $(docker-machine config swarm-worker-2)  swarm join \
+	  --token SWMTKN-1-5oj539rqkrlxik0znd8bbqbrkx8vbllmx6j401p3m06648z2p3-9qhmkmgafspg4apmablvmyeqy \
+	  $(docker-machine ip swarm-manager-1):2377
+
+Direct docker commands to a manager in the cluster:
+
+	eval $(docker-machine env swarm-manager-1)    
+
+Inspect the cluster;
+	
+	docker info
+	docker node ls
+	> ID                           HOSTNAME         STATUS  AVAILABILITY  MANAGER STATUS
+	> 532rjhzhxyulwq6br67ptwbdf    swarm-worker-2   Ready   Active
+	> 8l7ht3po49emchj5qax17rbt9    swarm-worker-1   Ready   Active
+	> cmq9ynvzepelvuoxmrx8ey2pn *  swarm-manager-1  Ready   Active        Leader
+
+	docker service  ls
+
+Leave a swarm:
+
+	docker $(docker-machine config swarm-worker-2)  swarm leave
+
+MISC
+
+	docker $(docker-machine config swarm-manager-1) swarm init --listen-addr $(docker-machine ip swarm-manager-1):2377
+	docker $(docker-machine config swarm-worker-1) swarm join $(docker-machine ip swmaster):2377 --listen-addr $(docker-machine ip swnode):2377
+
 Remove nodes:
 
     docker-machine rm swarm-manager-1
     docker-machine rm swarm-worker-1
     docker-machine rm swarm-worker-2
+
+## Docker Swarm visualiser
+
+	docker service create \
+	  --name=viz \
+	  --publish=8000:8080/tcp \
+	  --constraint=node.role==manager \
+	  --mount=type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
+	  manomarks/visualizer
+
+URL for Docker for Mac:
+
+	http://localhost:8000
+
+URL for Docker Swarm:
+
+First find the IP address for one of the nodes in the cluster:
+
+	docker-machine ip swarm-worker-1
+	> 192.168.99.102
+
+Open a web browser using the ip address:
+
+	http://192.168.99.102:8000
 
 ## Deploy quotes-service and portal.js	
 quotes-service:
@@ -304,10 +353,9 @@ quotes-service:
 	
 	docker service create --replicas 1 --name quotes-service -p 8080:8080 --network my-network --update-delay 10s --update-parallelism 1 magnuslarsson/quotes:3
 	docker service ls
-	docker service ps 79hzv4y2x7tu
-	docker service inspect 79hzv4y2x7tu
-	
-	curl localhost:8080/api/quote
+	docker service ps quotes-service
+	docker service inspect quotes-service	
+	curl $(docker-machine ip swarm-manager-1):8080/api/quote
 	
 	docker service scale quotes-service=3
 
