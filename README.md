@@ -1,16 +1,24 @@
 # TODO
 
+
+1. Miljöer:
+	1. Docker for Mac - Swarm Mode
+	1. Minikube
+	1. Docker Swarn (locally/AWS)
+	1. No Docker (Eureka/Ribbon)
+	1. K8S (GCE)
+	1  AWS ECS/ALB
+1. Config server för enkalre konfiguration alt rest anrop
+	1. Vill man påverka startup tiden så är det nästan bara config repo som gäller?
+	2. Env var och om deploy? (nja, snyggar emed config repo) 
+	
+## DONE
+
 1. Gå över till docker for mac
 1. Lägg på loggning i Portal!
-1. In med Spring Cloud Sleuth
+1. (In med Spring Cloud Sleuth
 1. Lägg på ip-adress i svaret!
 1. Skippa Docker DAP bundles
-1. Miljöer:
-	1. Docker for Mac
-	2. Minikube
-	3. Docker Swarn (AWS)
-	4. K8S (GCE)
-	5. No Docker (Eureka/Ribbon)
 
 # Setup
 
@@ -22,7 +30,27 @@ Using Docker for Mac:
 
 	eval $(docker-machine env -u)
 
+# quotes-service
+
+Build Docker image:
+
+	./gradlew clean build
+	#eval "$(docker-machine env default)"
+	docker build -t magnuslarsson/quotes .
+
+Tag and push Docker image:
+	
+	version=3
+	docker tag magnuslarsson/quotes magnuslarsson/quotes:${version}
+	docker push magnuslarsson/quotes:${version}
+
+
 # portal.js
+
+Cleanup:
+
+    rm -r bower_components
+    rm -r node_modules
 
 Install:
 
@@ -32,8 +60,21 @@ Start:
 
 	node_modules/gulp/bin/gulp.js serve
 
+Build (into `./dist`):
 
-Reverse proxy config is placed in `conf/browsersync.conf.js`.
+	node_modules/gulp/bin/gulp.js build
+
+Create Docker image, tag and push:
+
+	docker build -t magnuslarsson/portal.js .
+	#docker tag magnuslarsson/qportal.js magnuslarsson/portal.js:1
+	#docker push magnuslarsson/portal.js:1
+	
+Run as single docker container (for debug purposes)
+
+	docker run --rm -p9080:80 magnuslarsson/portal.js
+
+**NOTE: **Reverse proxy config is placed in `conf/browsersync.conf.js`.
 
 # Netflix Eureka (no containers)
 
@@ -175,21 +216,41 @@ Only works on experimental/beta docker v1.12...
 	docker swarm init
 	docker node ls
 	docker node inspect moby
-	docker-compose bundle
-	docker deploy dockercomposev2
+	
+	
+	# docker-compose bundle
+	# docker deploy dockercomposev2
+
+	docker service create --replicas 1 --name quotes-service -p 8080:8080 --update-delay 10s --update-parallelism 1 magnuslarsson/quotes:3
 	docker service ls
 	docker service ps 79hzv4y2x7tu
 	docker service inspect 79hzv4y2x7tu
 	
-	curl localhost:30000/home
-	curl localhost:30002/quote
+	curl localhost:8080/api/quote
 	
-	docker service scale dockercomposev2_quotes-service=2
+	docker service scale quotes-service=3
+
+	# curl localhost:30000/home
 	
 Scaling works fine!!!
 
 Upgrade a bundle is done with the doker deploy command
+
+### Access Docker Enging in Docker for Mac
+
+	screen ~/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/tty
 	
+To exit (kill the screen): 
+
+	“Ctrl-A” and “K”
 	
+## Docker Swarm visualiser
+
+	docker service create \
+	  --name=viz \
+	  --publish=8000:8080/tcp \
+	  --constraint=node.role==manager \
+	  --mount=type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
+	  manomarks/visualizer
 	
 	

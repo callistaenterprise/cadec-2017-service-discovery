@@ -1,8 +1,8 @@
 quotes-service:
-  image: magnuslarsson/quotes:1
+  image: magnuslarsson/quotes:3
 
 portal:
-  image: magnuslarsson/portal:1
+  image: magnuslarsson/portal.js:1
   ports:
     - "8080:8080"
   links:

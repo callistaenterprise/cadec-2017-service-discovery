@@ -31,8 +31,8 @@ public class QuoteController {
     public Quote quote(@RequestParam(value="language", defaultValue="en") String language) {
         if (QuotesHealthIndicator.isAlive) {
 
-            // FIX ME!
-            language = "en";
+            // FIX ME! Bug in version 3, corrected in version 4
+            // language = "en";
 
             List<String> list = quotes.get(language);
             String quoteText = list.get(random.nextInt(list.size()));

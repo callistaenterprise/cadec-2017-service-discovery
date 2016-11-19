@@ -3,11 +3,11 @@ version: '2'
 services:
 
   quotes-service:
-    image: magnuslarsson/quotes:1
+    image: magnuslarsson/quotes:3
     ports:
       - "9090:9090"
 
   portal:
-    image: magnuslarsson/portal:1
+    image: magnuslarsson/portal.js:1
     ports:
       - "8080:8080"
