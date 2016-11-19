@@ -67,13 +67,9 @@ Build (into `./dist`):
 Create Docker image, tag and push:
 
 	docker build -t magnuslarsson/portal.js .
-	#docker tag magnuslarsson/qportal.js magnuslarsson/portal.js:1
-	#docker push magnuslarsson/portal.js:1
+	docker tag magnuslarsson/portal.js magnuslarsson/portal.js:1
+	docker push magnuslarsson/portal.js:1
 	
-Run as single docker container (for debug purposes)
-
-	docker run --rm -p9080:80 magnuslarsson/portal.js
-
 **NOTE: **Reverse proxy config is placed in `conf/browsersync.conf.js`.
 
 # Netflix Eureka (no containers)
@@ -209,41 +205,6 @@ https://github.com/kubernetes/kubernetes/issues/13500
 
 # Docker Swarm
 
-## Singel node swarm
-
-Only works on experimental/beta docker v1.12...
-
-	docker swarm init
-	docker node ls
-	docker node inspect moby
-	
-	
-	# docker-compose bundle
-	# docker deploy dockercomposev2
-
-	docker service create --replicas 1 --name quotes-service -p 8080:8080 --update-delay 10s --update-parallelism 1 magnuslarsson/quotes:3
-	docker service ls
-	docker service ps 79hzv4y2x7tu
-	docker service inspect 79hzv4y2x7tu
-	
-	curl localhost:8080/api/quote
-	
-	docker service scale quotes-service=3
-
-	# curl localhost:30000/home
-	
-Scaling works fine!!!
-
-Upgrade a bundle is done with the doker deploy command
-
-### Access Docker Enging in Docker for Mac
-
-	screen ~/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/tty
-	
-To exit (kill the screen): 
-
-	“Ctrl-A” and “K”
-	
 ## Docker Swarm visualiser
 
 	docker service create \
@@ -252,5 +213,86 @@ To exit (kill the screen):
 	  --constraint=node.role==manager \
 	  --mount=type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
 	  manomarks/visualizer
+
+## Singel node swarm
+
+Only works on experimental/beta docker v1.12...
+
+	docker swarm init
+	docker node ls
+	docker node inspect moby
 	
+### Access Docker Enging in Docker for Mac
+
+	screen ~/Library/Containers/com.docker.docker/Data/com.docker.driver.amd64-linux/tty
 	
+To exit (kill the screen): 
+
+	“Ctrl-A” and “K”
+		
+## Swarm Cluster
+
+Create nodes:
+
+    docker-machine create \
+      --driver virtualbox \
+      --virtualbox-cpu-count 2 \
+      --virtualbox-memory 2048 \
+      --virtualbox-disk-size 20000 \
+      swarm-manager-1
+
+    docker-machine create \
+      --driver virtualbox \
+      --virtualbox-cpu-count 2 \
+      --virtualbox-memory 2048 \
+      --virtualbox-disk-size 20000 \
+      swarm-worker-1
+
+    docker-machine create \
+      --driver virtualbox \
+      --virtualbox-cpu-count 2 \
+      --virtualbox-memory 2048 \
+      --virtualbox-disk-size 20000 \
+      swarm-worker-2
+      
+Remove nodes:
+
+    docker-machine rm swarm-manager-1
+    docker-machine rm swarm-worker-1
+    docker-machine rm swarm-worker-2
+
+## Deploy quotes-service and portal.js	
+quotes-service:
+
+	# docker-compose bundle
+	# docker deploy dockercomposev2
+
+	docker network create --driver overlay my-network
+	
+	docker service create --replicas 1 --name quotes-service -p 8080:8080 --network my-network --update-delay 10s --update-parallelism 1 magnuslarsson/quotes:3
+	docker service ls
+	docker service ps 79hzv4y2x7tu
+	docker service inspect 79hzv4y2x7tu
+	
+	curl localhost:8080/api/quote
+	
+	docker service scale quotes-service=3
+
+portal.js:
+
+	docker service create --replicas 1 --name portal -p 9080:80 --network my-network --update-delay 10s --update-parallelism 1 magnuslarsson/portal.js
+
+	# curl localhost:30000/home
+	
+**Note #1:** Scaling works fine using exxternal curl command!!!
+
+**Note #2:** Scaling doesn't works with portal.js (uses one and the same IP address)!!!
+
+**Note #3:** Upgrade a bundle is done with the doker deploy command
+
+### Teardown
+
+	docker service rm quotes-service
+	
+
+      
