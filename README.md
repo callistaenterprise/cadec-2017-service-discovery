@@ -291,10 +291,10 @@ Create cluster:
 
 	docker $(docker-machine config swarm-manager-1) swarm init --advertise-addr $(docker-machine ip swarm-manager-1)
 	docker $(docker-machine config swarm-worker-1)  swarm join \
-	  --token SWMTKN-1-5oj539rqkrlxik0znd8bbqbrkx8vbllmx6j401p3m06648z2p3-9qhmkmgafspg4apmablvmyeqy \
+	  --token SWMTKN-... \
 	  $(docker-machine ip swarm-manager-1):2377
 	docker $(docker-machine config swarm-worker-2)  swarm join \
-	  --token SWMTKN-1-5oj539rqkrlxik0znd8bbqbrkx8vbllmx6j401p3m06648z2p3-9qhmkmgafspg4apmablvmyeqy \
+	  --token SWMTKN-... \
 	  $(docker-machine ip swarm-manager-1):2377
 
 Direct docker commands to a manager in the cluster:
