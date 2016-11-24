@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+
+: ${logging=0}
+
+function log() {
+    echo "$@"
+}
+
+function note() {
+    local GREEN NC
+    GREEN='\033[0;32m'
+    NC='\033[0m' # No Color
+    printf "\n${GREEN}$@  ${NC}\n" >&2
+}
+
+function listContainerIpAddressesInADockerMachine(){
+
+    local dockerHost containers
+    dockerHost=$1
+
+    note "Containers in ${dockerHost}:"
+
+    containers=$(docker $(docker-machine config  ${dockerHost}) ps -q)
+
+    if [ -z "${containers}" ]; then
+        log "No containers run on Docker host ${dockerHost}"
+    else
+    	docker $(docker-machine config ${dockerHost}) inspect -f '{{ .Config.Hostname }} {{ .NetworkSettings.Networks.ingress.IPAddress }} {{ .Config.Image }}' $containers
+    fi
+
+}
+
+function findContainerBasedOnIpAddressInADockerMachine(){
+
+    local dockerHost idAddress containers foundContainers
+    dockerHost=$1
+    idAddress=$2
+
+    note "Look for container with ip address ${ipAddress} in ${dockerHost}:"
+
+    containers=$(docker $(docker-machine config  ${dockerHost}) ps -q)
+
+    if [ -z "${containers}" ]; then
+        log "No containers run on Docker host ${dockerHost}"
+    else
+
+        for c in $( docker $(docker-machine config  ${dockerHost}) ps -q ); do
+        	foundIpAddress=$(docker $(docker-machine config ${dockerHost}) inspect -f '{{ .NetworkSettings.Networks.ingress.IPAddress }}' $c)
+
+            if [ "$foundIpAddress" = "$idAddress" ]
+            then
+                log "Found the container, shutting down..."
+                docker $(docker-machine config ${dockerHost}) kill $c
+            fi
+        done
+
+#    	docker $(docker-machine config ${dockerHost}) inspect -f '{{ .Config.Hostname }} {{ .NetworkSettings.Networks.ingress.IPAddress }}' $containers
+#    	foundContainers=$(docker $(docker-machine config ${dockerHost}) inspect -f '{{ .Config.Hostname }} {{ .NetworkSettings.Networks.ingress.IPAddress }}' $containers)
+#        log $foundContainers
+#
+#    	theContainer=$(echo ${foundContainers} | grep ${idAddress})
+#
+#        if [ -z "${theContainer}" ]; then
+#            log "No container with IP address ${idAddress} found"
+#        else
+#            log "Container with IP address ${idAddress} found: ${theContainer}"
+#        fi
+
+    fi
+
+}
+
+function listContainerIpAddressesInCluster(){
+
+    listContainerIpAddressesInADockerMachine swarm-manager-1
+    listContainerIpAddressesInADockerMachine swarm-worker-1
+    listContainerIpAddressesInADockerMachine swarm-worker-2
+}
+
+function killContainerByIpAddressInCluster(){
+
+    local ipAddress
+    ipAddress=$2
+
+    note "Kill container with ip-address ${ipAddress}"
+    findContainerBasedOnIpAddressInADockerMachine swarm-manager-1 $ipAddress
+    findContainerBasedOnIpAddressInADockerMachine swarm-worker-1 $ipAddress
+    findContainerBasedOnIpAddressInADockerMachine swarm-worker-2 $ipAddress
+}
+
+cmd=$1
+case $cmd in
+    ls ) listContainerIpAddressesInCluster;;
+    kill ) killContainerByIpAddressInCluster $@;;
+esac

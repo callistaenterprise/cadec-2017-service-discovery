@@ -1,3 +1,11 @@
+# Background material
+
+https://www.katacoda.com/courses/docker-orchestration/
+http://collabnix.com/archives/1504
+https://sreeninet.wordpress.com/2016/07/29/service-discovery-and-load-balancing-internals-in-docker-1-12/
+http://blog.scottlogic.com/2016/08/30/docker-1-12-swarm-mode-round-robin.html
+http://container-solutions.com/hail-new-docker-swarm/
+
 # TODO
 
 
@@ -343,6 +351,14 @@ Open a web browser using the ip address:
 
 	http://192.168.99.102:8000
 
+## Show containers IP addresses
+
+	docker $(docker-machine config swarm-manager-1) inspect -f '{{ .Config.Hostname }} {{ .NetworkSettings.Networks.ingress.IPAddress }}' $(docker $(docker-machine config swarm-manager-1) ps -q)
+	docker $(docker-machine config swarm-worker-1) inspect -f '{{ .Config.Hostname }} {{ .NetworkSettings.Networks.ingress.IPAddress }}' $(docker $(docker-machine config swarm-worker-1) ps -q)
+	docker $(docker-machine config swarm-worker-2) inspect -f '{{ .Config.Hostname }} {{ .NetworkSettings.Networks.ingress.IPAddress }}' $(docker $(docker-machine config swarm-worker-2) ps -q)
+
+	docker inspect -f '{{ .Config.Hostname }} {{ .NetworkSettings.Networks.ingress.IPAddress }}' $(docker ps -q)
+
 ## Deploy quotes-service and portal.js	
 quotes-service:
 
@@ -355,19 +371,26 @@ quotes-service:
 	docker service ls
 	docker service ps quotes-service
 	docker service inspect quotes-service	
+	curl localhost:8080/api/quote
 	curl $(docker-machine ip swarm-manager-1):8080/api/quote
 	
 	docker service scale quotes-service=3
 
 portal.js:
 
-	docker service create --replicas 1 --name portal -p 9080:80 --network my-network --update-delay 10s --update-parallelism 1 magnuslarsson/portal.js
+	docker service create --replicas 1 --name portal -p 9080:80 --network my-network --update-delay 10s --update-parallelism 1 magnuslarsson/portal.js:1
 
 	# curl localhost:30000/home
+
+Web Browser URL:
+
+	http://localhost:9080
+	http://192.168.99.102:9080
 	
-**Note #1:** Scaling works fine using exxternal curl command!!!
+**Note #1:** Scaling works fine using external curl command!!!
 
 **Note #2:** Scaling doesn't works with portal.js (uses one and the same IP address)!!!
+Kan appache komma förbi Virtual Extensible LAN (VXLAN)???
 
 **Note #3:** Upgrade a bundle is done with the doker deploy command
 
