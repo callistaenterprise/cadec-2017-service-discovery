@@ -199,6 +199,10 @@ Test:
 
 # Kubernetes
 
+[http://kubernetes.io/docs/user-guide/kubectl/kubectl_run/]()
+
+[http://kubernetes.io/docs/user-guide/kubectl/kubectl_expose/]()
+
 ## Minikube
 
     minikube start
@@ -209,15 +213,56 @@ Test:
 
 	eval $(minikube docker-env)
 
+## Google Cloud Platform
+
+	#gcloud auth login
+	#gcloud auth list
+	#> Credentialed Accounts:
+	#> - magnus.larsson@callistaenterprise.se ACTIVE	
+	gcloud auth application-default login
+	> osascript: OpenScripting.framework - scripting addition "/Library/ScriptingAdditions/Adobe Unit Types.osax" cannot be used with the current OS because it has no OSAXHandlers entry in its Info.plist.
+	> Your browser has been opened to visit:
+	>     https://accounts.google.com/o/oauth2/auth?redirect_uri=http%3A%2F%2Flocalhost%3A8085%2F&prompt=select_account&response_type=code&client_id=764086051850-6qr4p6gpi6hn506pt8ejuq83di341hur.apps.googleusercontent.com&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcloud-platform&access_type=offline
+	>
+	> Credentials saved to file: [/Users/magnus/.config/gcloud/application_default_credentials.json]
+	
+	gcloud auth application-default print-access-token	
+	export PROJECT_ID=k8s-labb-3
+	gcloud config set project $PROJECT_ID
+
+	gcloud config set compute/zone europe-west1-b
+	
+Var tvungen att pilla i web consolen för att få igång Computer Engine...
+
+https://console.developers.google.com/apis/dashboard?project=k8s-labb-3&duration=PT1H
+	
+	gcloud container clusters create my-cluster
+	> Creating cluster my-cluster...done.
+	> Created [https://container.googleapis.com/v1/projects/k8s-labb-3/zones/europe-west1-b/clusters/my-cluster].
+	> kubeconfig entry generated for my-cluster.
+	> NAME        ZONE            MASTER_VERSION  MASTER_IP      MACHINE_TYPE   NODE_VERSION  NUM_NODES  STATUS
+	> my-cluster  europe-west1-b  1.4.6           104.155.34.40  n1-standard-1  1.4.6         3          RUNNING	
+	kubectl cluster-info
+	kubectl get nodes
+	
+	gcloud container clusters list
+	gcloud container clusters describe my-cluster
+	
+Tear down cluster:
+
+	gcloud container clusters delete my-cluster
+    
+
 ## Kubernetes med user space proxy
 
 kubernetes user space vs system space proxy
 
 http://stackoverflow.com/questions/36088224/what-does-userspace-mode-means-in-kube-proxys-proxy-mode
+https://github.com/kubernetes/kubernetes/issues/1107
 https://github.com/kubernetes/kubernetes/issues/3760
-https://github.com/kubernetes/kubernetes/issues/19457
-https://github.com/kubernetes/kubernetes/issues/12682
-https://github.com/kubernetes/kubernetes/issues/13500
+https://github.com/kubernetes/kubernetes/issues/19457 (cpu tabeller!!!)
+https://github.com/kubernetes/kubernetes/issues/12682 (test + graphs!!!)
+https://github.com/kubernetes/kubernetes/issues/13500 (proposal, new?)
 
 
 ## Kubernetes med system space proxy
@@ -226,17 +271,55 @@ https://github.com/kubernetes/kubernetes/issues/13500
 
 Quotes: 
 
+With kubectl run and expose:
+
+Deployment:
+
+	kubectl run quotes-v3 --image=magnuslarsson/quotes:3 --port=8080 
+	kubectl expose deployment quotes-v3 --type=LoadBalancer --name quotes-service
+
+RC:
+
+	kubectl run quotes-v3 --image=magnuslarsson/quotes:3 --port=8080 --generator=run/v1
+	kubectl expose rc quotes-v3 --type=LoadBalancer --name quotes-service
+
+
+With kubectl create:
+
 	cd quotes
 	kubectl create -f k8s/quotes-controller-v3.yaml
 	kubectl create -f k8s/quotes-service.yaml
 	
+Verify:
+
 	kubectl get pods
 	kubectl get replicationController
+	kubectl get deployments
 	kubectl get svc
+	> NAME             CLUSTER-IP      EXTERNAL-IP      PORT(S)    AGE
+	> kubernetes       10.127.240.1    <none>           443/TCP    4h
+	> quotes-service   10.127.254.95   104.199.48.230   8080/TCP   3h
 
+	QHOST=104.199.48.230
+	kubectl scale rc quotes-v3 --replicas=3
+
+	kubectl describe pod quotes | grep "IP:"
+	> IP:		10.124.2.6
+	> IP:		10.124.0.4
+	> IP:		10.124.1.6
+
+	curl $QHOST:8080/api/quote	
 	curl 192.168.99.104:30080/api/quote	
 
+
 Portal:
+
+With kubectl run and expose as RC:
+
+	kubectl run portal-v1 --image=magnuslarsson/portal.js:1 --port=80 --generator=run/v1
+	kubectl expose rc portal-v1 --type=LoadBalancer --name portal
+
+With kubectl create:
 
 	cd portal.js
 	kubectl create -f k8s/portal-controller-v1.yaml
@@ -244,6 +327,26 @@ Portal:
 	
 	curl 192.168.99.104:30090
 
+Verify:
+
+	kubectl get svc
+	> portal           10.127.250.82    104.199.73.84   80/TCP     1m
+
+	PHOST=104.199.73.84
+
+	curl $PHOST
+
+## K8s commands
+
+	kubectl cluster-info
+	Kubernetes-dashboard
+	kubectl get nodes
+	ubectl describe node gke-kubia-85f6-node-0rrx
+	kubectl run kubia --image=luksa/kubia --port=8080 --generator=run/v1
+	
+	You can get a list of all the possible resource types by invoking kubectl get without specifying the type.
+	
+	
 # Docker Swarm
 
 ## Singel node swarm
@@ -398,5 +501,11 @@ Kan appache komma förbi Virtual Extensible LAN (VXLAN)???
 
 	docker service rm quotes-service
 	
+# AWS ECS
+
+[https://rossfairbanks.com/2015/03/31/hello-world-in-ec2-container-service.html]()
+
+[https://aws.amazon.com/blogs/aws/new-aws-application-load-balancer/]()
+
 
       
