@@ -1,5 +1,7 @@
 package se.callista.quotes;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +22,7 @@ public class QuoteController {
     
     Map<String, List<String>> quotes;
 	Random random = new Random();
+	String ipAddress = findMyIpAddress();
 	
 	public QuoteController() {
         quotes = new HashMap<>();
@@ -36,7 +39,7 @@ public class QuoteController {
 
             List<String> list = quotes.get(language);
             String quoteText = list.get(random.nextInt(list.size()));
-            Quote quote = new Quote(quoteText, language);
+            Quote quote = new Quote(quoteText, language, ipAddress);
             LOG.info("Delivered quote: '" + quoteText + "'");
             return quote;
         } else {
@@ -50,4 +53,13 @@ public class QuoteController {
         LOG.info("Took posion");
         return "Ouch!";
     }
+
+    private String findMyIpAddress() {
+        try {
+            return InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

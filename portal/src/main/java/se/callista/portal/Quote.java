@@ -1,7 +1,4 @@
-package se.callista.quotes;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+package se.callista.portal;
 
 public class Quote {
 
