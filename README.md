@@ -507,5 +507,35 @@ Kan appache komma förbi Virtual Extensible LAN (VXLAN)???
 
 [https://aws.amazon.com/blogs/aws/new-aws-application-load-balancer/]()
 
+# Setup a ECS cluster
+
+See https://console.aws.amazon.com/ecs
+
+Configure and create a cluster with one node:
+(since we, for now, only use ECS tasks and not ECS services nor an ELB there is no use with > 1 node...)
+
+Lista nycklar:
+
+	aws kms list-keys
+
+...ger iam-user not authorized fel..
+
+    ecs-cli configure --region eu-west-1 --access-key $AWS_ACCESS_KEY_ID --secret-key $AWS_SECRET_ACCESS_KEY --cluster ecs-ml-cluster
+
+    ecs-cli up --keypair aws-key1 --capability-iam --size 3 --instance-type t2.small
+
+Remove the cluster, if required:
+
+    ecs-cli down -f
+
+## Open ports in the clusters security group
+
+For now we need to open the following ports
+
+* 8761 (Discovery server, Eureka)
+* 8888 (Config Server)
+* 9999 (Local OAuth Server)
+* 8443 (API-gateway/Edge server)
+    
 
       
