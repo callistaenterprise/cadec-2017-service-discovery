@@ -53,6 +53,24 @@ Tag and push Docker image:
 	docker push magnuslarsson/quotes:${version}
 
 
+# portal
+
+Build Docker image:
+
+	./gradlew clean build
+	#eval "$(docker-machine env default)"
+	docker build -t magnuslarsson/portal .
+
+Push latest Docker image:
+
+	docker push magnuslarsson/portal
+	
+Tag and push Docker image:
+	
+	version=5
+	docker tag magnuslarsson/portal magnuslarsson/portal:${version}
+	docker push magnuslarsson/portal:${version}
+
 # portal.js
 
 Cleanup:
