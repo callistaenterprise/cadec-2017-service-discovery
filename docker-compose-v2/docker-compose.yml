@@ -4,10 +4,15 @@ services:
 
   quotes-service:
     image: magnuslarsson/quotes:3
-    ports:
-      - "9090:9090"
+#    ports:
+#      - "9090:9090"
+
+#  portal.js:
+#    image: magnuslarsson/portal.js:1
+#    ports:
+#      - "7070:80"
 
   portal:
-    image: magnuslarsson/portal.js:1
+    image: magnuslarsson/portal
     ports:
-      - "8080:8080"
+      - "9090:9090"

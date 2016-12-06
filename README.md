@@ -6,6 +6,25 @@ https://sreeninet.wordpress.com/2016/07/29/service-discovery-and-load-balancing-
 http://blog.scottlogic.com/2016/08/30/docker-1-12-swarm-mode-round-robin.html
 http://container-solutions.com/hail-new-docker-swarm/
 
+# Notes
+
+## JVM DNS settings...
+
+In docker containers: /usr/lib/jvm/jre/lib/security/java.security
+
+## Docker for Mac strul
+
+docker-compose up ger ibland följande fel (ej down innan)
+
+	Unexpected API error for dockercomposev2_portal_1 (HTTP code 500)
+	Response body:
+	dial unix /Users/magnus/Library/Containers/com.docker.docker/Data/*00000003.00000948: connect: connection refused
+	
+	Unexpected API error for dockercomposev2_quotes-service_3 (HTTP code 500)
+	Response body:
+	dial unix /Users/magnus/Library/Containers/com.docker.docker/Data/*00000003.00000948: connect: connection refused
+
+
 # TODO
 
 
@@ -32,9 +51,16 @@ http://container-solutions.com/hail-new-docker-swarm/
 
 Using default docker-machine:
 
-	eval $(docker-machine env)
+    docker-machine create \
+      --driver virtualbox \
+      --virtualbox-cpu-count 2 \
+      --virtualbox-memory 4096 \
+      --virtualbox-disk-size 20000 \
+      local
+      
+	eval $(docker-machine env local)
 
-Using Docker for Mac:
+Using Docker for Mac (NOT STABLE ENOUGH!!!:
 
 	eval $(docker-machine env -u)
 
@@ -43,7 +69,6 @@ Using Docker for Mac:
 Build Docker image:
 
 	./gradlew clean build
-	#eval "$(docker-machine env default)"
 	docker build -t magnuslarsson/quotes .
 
 Tag and push Docker image:
@@ -138,10 +163,11 @@ Scale issues:
 	docker-compose scale quotes-service=2
 	docker-compose ps
 
-	docker-compose exec --index=1 quotes-service  wget -qO- localhost:9090/quote | jq
-	docker-compose exec --index=2 quotes-service  wget -qO- localhost:9090/quote | jq
 
+	docker-compose exec --index=1 quotes-service  wget -qO- localhost:8080/api/quote | jq	docker-compose exec --index=2 quotes-service  wget -qO- localhost:8080/api/quote | jq	
 	docker-compose exec portal wget -qO- quotes-service:9090/quote | jq
+
+
 	
 
 Wiew host names in portal:	
@@ -166,28 +192,57 @@ Start up and monitor logs:
 
 In another terminal:
 
-	# docker-compose exec quotes-service  wget -qO- localhost:9090/quote | jq
-	docker-compose exec portal wget -qO- quotes-service:9090/quote | jq
-	docker-compose exec portal wget -qO- localhost:8080/home
+	docker-compose exec quotes-service  wget -qO- localhost:8080/api/quote | jq .
+	docker-compose exec portal wget -qO- quotes-service:8080/api/quote | jq .
+	docker-compose exec portal wget -qO- localhost:9090/quote | jq 
+
+	docker run -it --rm --network dockercomposev2_default centos curl quotes-service:8080/api/quote | jq .
+	curl -s docker.me:9090/quoteWithoutRetries | jq .
+
+	docker-compose exec portal nslookup quotes-service
+	> Server:    127.0.0.11
+	> Address 1: 127.0.0.11
+	>
+	> Name:      quotes-service
+	> Address 1: 172.19.0.3 dockercomposev2_quotes-service_1.dockercomposev2_default
+	> Address 2: 172.19.0.4 dockercomposev2_quotes-service_3.dockercomposev2_default
+	> Address 3: 172.19.0.5 dockercomposev2_quotes-service_2.dockercomposev2_default
 
 ## Scale issues:
 
+Verify:
+
+	curl -s docker.me:9090/9090/quoteWithoutRetries | jq .
+
+Scale:
+
 	docker-compose scale quotes-service=3
+	docker-compose exec portal nslookup quotes-service
+	docker inspect -f '{{ .Config.Hostname }} {{ .NetworkSettings.Networks.dockercomposev2_default.IPAddress }} {{ .Config.Image }}' $(docker ps -q --filter "name=quotes")
 
-**NOTE**: Varför växlar inte anropen???
+Kill selected instance:
 
-	docker-compose exec portal wget -qO- quotes-service:9090/quote | jq
+	curl -s docker.me:9090/9090/quoteWithoutRetries | jq .
+	docker rm -f
 
-Portal väljer alltid #1
+Call should hang:
 
-	docker run -it --rm --network=dockercomposev2_default centos curl quotes-service:9090/quote | jq
+	docker-compose exec portal nslookup quotes-service
+	curl -s docker.me:9090/quote | jq .
 
-Docker run väljer alltid #2 eller #3
 
-Kill instance #1:
+>**NOTE**: Varför växlar inte anropen???
+>
+>	  docker-compose exec portal wget -qO- quotes-service:8080/api/quote | jq
+>
+>Portal väljer alltid samma (ofta den första)
+>
+>	  docker run -it --rm --network=dockercomposev2_default centos curl quotes-service:8080/api/quote | jq
+>
+>"Docker run" mot centos väljer olika
+>
+>Gissningsvis är någon inställt på att alltid cacha DNS entries i docker imagen ofayau/ejre?
 
-    docker ps | grep quotes-service_1
-    docker kill 074b777e0e4f
    
 Verify: 
     
@@ -287,7 +342,7 @@ https://github.com/kubernetes/kubernetes/issues/13500 (proposal, new?)
 
 ## Deploy quotes-service and portal.js
 
-Quotes: 
+**Quotes:**
 
 With kubectl run and expose:
 
@@ -330,7 +385,7 @@ Verify:
 	curl 192.168.99.104:30080/api/quote	
 
 
-Portal:
+**Portal:**
 
 With kubectl run and expose as RC:
 
@@ -410,6 +465,8 @@ Create nodes:
       
 Create cluster:      
 
+**FIRST MANUAL VERSION**
+
 	docker $(docker-machine config swarm-manager-1) swarm init --advertise-addr $(docker-machine ip swarm-manager-1)
 	docker $(docker-machine config swarm-worker-1)  swarm join \
 	  --token SWMTKN-... \
@@ -418,8 +475,19 @@ Create cluster:
 	  --token SWMTKN-... \
 	  $(docker-machine ip swarm-manager-1):2377
 
-Direct docker commands to a manager in the cluster:
+**SECOND IMPROVED AUTOMATED VERSION**
 
+	ManagerIP=`docker-machine ip swarm-manager-1`
+	
+	docker-machine ssh swarm-manager-1 docker swarm init --advertise-addr ${ManagerIP}
+	
+	WorkerToken=`docker-machine ssh swarm-manager-1 docker swarm join-token worker | grep token | awk '{ print $2 }'`
+	
+	docker-machine ssh swarm-worker-1 "docker swarm join --token ${WorkerToken} ${ManagerIP}:2377"
+	docker-machine ssh swarm-worker-2 "docker swarm join --token ${WorkerToken} ${ManagerIP}:2377"
+	
+Direct docker commands to a manager in the cluster:
+	
 	eval $(docker-machine env swarm-manager-1)    
 
 Inspect the cluster;
@@ -529,14 +597,13 @@ Kan appache komma förbi Virtual Extensible LAN (VXLAN)???
 
 See https://console.aws.amazon.com/ecs
 
-Configure and create a cluster with one node:
-(since we, for now, only use ECS tasks and not ECS services nor an ELB there is no use with > 1 node...)
-
 Lista nycklar:
 
 	aws kms list-keys
 
 ...ger iam-user not authorized fel..
+
+Configure and create a cluster with three nodes:
 
     ecs-cli configure --region eu-west-1 --access-key $AWS_ACCESS_KEY_ID --secret-key $AWS_SECRET_ACCESS_KEY --cluster ecs-ml-cluster
 

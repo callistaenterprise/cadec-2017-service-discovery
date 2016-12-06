@@ -1,7 +1,11 @@
 package se.callista.portal;
 
+import java.security.Security;
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -12,13 +16,33 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
+import javax.annotation.PostConstruct;
+
 @SpringBootApplication
 public class PortalApplication extends WebMvcConfigurerAdapter {
 
-	public static void main(String[] args) {
-		SpringApplication.run(PortalApplication.class, args);
+	@Value("${server.port}")
+	private String port;
+
+	private static final Logger LOG = LoggerFactory.getLogger(PortalApplication.class);
+
+	@PostConstruct
+	public void postConstruct() {
+		LOG.info("PortalApplication use port {}", port);
 	}
-	
+
+	public static void main(String[] args) {
+		int verNo = 23;
+		SpringApplication.run(PortalApplication.class, args);
+
+		LOG.info("JVM DNS Cache TTL: {}", Security.getProperty("networkaddress.cache.ttl"));
+//		java.security.Security.setProperty("networkaddress.cache.ttl" , "1-");
+//		LOG.info("JVM DNS Cache TTL: {}", Security.getProperty("networkaddress.cache.ttl"));
+		LOG.info("JVM DNS Cache Negative TTL: {}", Security.getProperty("networkaddress.cache.negative.ttl"));
+		LOG.info("PortalApplication v{} started", verNo);
+		LOG.info("PortalApplication dummy log-message...");
+	}
+
 	@Bean
 	public ResourceBundleMessageSource messageSource() {
 		ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
