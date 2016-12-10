@@ -12,13 +12,16 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
+import javax.inject.Inject;
 import javax.net.ssl.HttpsURLConnection;
 
 //@Controller
@@ -33,7 +36,9 @@ public class PortalController {
 	@Value("${quote.port}")
 	private String quotePort;
 
-    RestTemplate restTemplate = createNewRestTemplate();
+	@Inject
+	@LoadBalanced
+	private RestOperations restTemplate;
 
 	@RequestMapping("/quote")
 	public Quote quote() {
@@ -102,18 +107,6 @@ public class PortalController {
     	model.addAttribute("quote", quote.getQuote());
         return "home";
     }
-
-	public RestTemplate createNewRestTemplate() {
-		HttpComponentsClientHttpRequestFactory factory =
-				new HttpComponentsClientHttpRequestFactory(HttpClientBuilder.create()
-						.setSSLHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier())
-						.build());
-
-		factory.setConnectTimeout(500);
-		factory.setReadTimeout(5000);
-
-		return new RestTemplate(factory);
-	}
 
 	private void printDNSCachedInfo(String dnsName) throws Exception {
 

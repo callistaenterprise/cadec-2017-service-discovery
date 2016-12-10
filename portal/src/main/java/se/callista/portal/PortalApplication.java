@@ -3,13 +3,18 @@ package se.callista.portal;
 import java.security.Security;
 import java.util.Locale;
 
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -17,14 +22,30 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import javax.annotation.PostConstruct;
+import javax.net.ssl.HttpsURLConnection;
 
+@EnableDiscoveryClient
 @SpringBootApplication
 public class PortalApplication extends WebMvcConfigurerAdapter {
+
+	private static final Logger LOG = LoggerFactory.getLogger(PortalApplication.class);
 
 	@Value("${server.port}")
 	private String port;
 
-	private static final Logger LOG = LoggerFactory.getLogger(PortalApplication.class);
+	@Bean
+	@LoadBalanced
+	public RestTemplate restTemplate() {
+		HttpComponentsClientHttpRequestFactory factory =
+			new HttpComponentsClientHttpRequestFactory(HttpClientBuilder.create()
+				.setSSLHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier())
+				.build());
+
+		factory.setConnectTimeout(500);
+		factory.setReadTimeout(5000);
+
+		return new RestTemplate(factory);
+	}
 
 	@PostConstruct
 	public void postConstruct() {
