@@ -1,5 +1,5 @@
 quotes-service:
-  image: magnuslarsson/quotes:3
+  image: magnuslarsson/quotes:11
 
 #portal.js:
 #  image: magnuslarsson/portal.js:1
@@ -9,7 +9,7 @@ quotes-service:
 #    - quotes-service
 
 portal:
-  image: magnuslarsson/portal:5
+  image: magnuslarsson/portal:11
   ports:
     - "9090:9090"
   links:

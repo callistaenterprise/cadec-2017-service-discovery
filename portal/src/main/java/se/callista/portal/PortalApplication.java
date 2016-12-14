@@ -55,7 +55,7 @@ public class PortalApplication extends WebMvcConfigurerAdapter {
 	}
 
 	public static void main(String[] args) {
-		int verNo = 23;
+		int verNo = 11;
 		SpringApplication.run(PortalApplication.class, args);
 
 		LOG.info("JVM DNS Cache TTL: {}", Security.getProperty("networkaddress.cache.ttl"));

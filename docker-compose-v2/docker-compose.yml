@@ -3,7 +3,7 @@ version: '2'
 services:
 
   quotes-service:
-    image: magnuslarsson/quotes:3
+    image: magnuslarsson/quotes:11
     environment:
       - SPRING_CLOUD_DISCOVERY_ENABLED=false
 
@@ -16,7 +16,7 @@ services:
 #      - "7070:80"
 
   portal:
-    image: magnuslarsson/portal:5
+    image: magnuslarsson/portal:11
     ports:
       - "9090:9090"
     environment:

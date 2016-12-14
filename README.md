@@ -60,7 +60,7 @@ Using default docker-machine:
       
 	eval $(docker-machine env local)
 
-Using Docker for Mac (NOT STABLE ENOUGH!!!:
+Using Docker for Mac (NOT STABLE ENOUGH???):
 
 	eval $(docker-machine env -u)
 
@@ -73,7 +73,7 @@ Build Docker image:
 
 Tag and push Docker image:
 	
-	version=3
+	version=11
 	docker tag magnuslarsson/quotes magnuslarsson/quotes:${version}
 	docker push magnuslarsson/quotes:${version}
 
@@ -83,16 +83,15 @@ Tag and push Docker image:
 Build Docker image:
 
 	./gradlew clean build
-	#eval "$(docker-machine env default)"
 	docker build -t magnuslarsson/portal .
 
 Push latest Docker image:
 
-	docker push magnuslarsson/portal
+	# docker push magnuslarsson/portal
 	
 Tag and push Docker image:
 	
-	version=5
+	version=11
 	docker tag magnuslarsson/portal magnuslarsson/portal:${version}
 	docker push magnuslarsson/portal:${version}
 
@@ -212,7 +211,7 @@ In another terminal:
 	docker-compose exec portal wget -qO- localhost:9090/quote | jq 
 
 	docker run -it --rm --network dockercomposev2_default centos curl quotes-service:8080/api/quote | jq .
-	curl -s docker.me:9090/quoteWithoutRetries | jq .
+	curl -s localhost:9090/quote | jq .
 
 	docker-compose exec portal nslookup quotes-service
 	> Server:    127.0.0.11
@@ -220,20 +219,27 @@ In another terminal:
 	>
 	> Name:      quotes-service
 	> Address 1: 172.19.0.3 dockercomposev2_quotes-service_1.dockercomposev2_default
-	> Address 2: 172.19.0.4 dockercomposev2_quotes-service_3.dockercomposev2_default
-	> Address 3: 172.19.0.5 dockercomposev2_quotes-service_2.dockercomposev2_default
 
 ## Scale issues:
 
+	docker-compose up	docker-compose scale quotes-service=3	docker-compose exec portal nslookup quotes-service	curl -s localhost:9090/quote | jq .	docker run -it --rm --network dockercomposev2_default centos curl quotes-service:8080/api/quote | jq .
+
+
 Verify:
 
-	curl -s docker.me:9090/9090/quoteWithoutRetries | jq .
+	curl -s localhost:9090/quote | jq .
 
 Scale:
 
 	docker-compose scale quotes-service=3
 	docker-compose exec portal nslookup quotes-service
 	docker inspect -f '{{ .Config.Hostname }} {{ .NetworkSettings.Networks.dockercomposev2_default.IPAddress }} {{ .Config.Image }}' $(docker ps -q --filter "name=quotes")
+
+Try out:
+
+>>> 	see PPT!!!
+
+
 
 Kill selected instance:
 
@@ -455,6 +461,9 @@ To exit (kill the screen):
 		
 ## Swarm Cluster
 
+Note on how to fix statis IP addresses for swarm nodes in VirtualBox: [https://github.com/docker/machine/issues/1709]()
+Logs for a service [https://github.com/docker/docker/issues/23710]()
+
 Create nodes:
 
     docker-machine create \
@@ -563,7 +572,7 @@ Open a web browser using the ip address:
 
 	docker inspect -f '{{ .Config.Hostname }} {{ .NetworkSettings.Networks.ingress.IPAddress }}' $(docker ps -q)
 
-## Deploy quotes-service and portal.js	
+## Deploy quotes-service and portal	
 quotes-service:
 
 	# docker-compose bundle
@@ -571,34 +580,53 @@ quotes-service:
 
 	docker network create --driver overlay my-network
 	
-	docker service create --replicas 1 --name quotes-service -p 8080:8080 --network my-network --update-delay 10s --update-parallelism 1 magnuslarsson/quotes:3
+	docker service create --replicas 1 --name quotes-service -p 8080:8080 --network my-network --update-delay 10s --update-parallelism 1 magnuslarsson/quotes:11
 	docker service ls
 	docker service ps quotes-service
 	docker service inspect quotes-service	
-	curl localhost:8080/api/quote
-	curl $(docker-machine ip swarm-manager-1):8080/api/quote
+	curl -s $(docker-machine ip swarm-manager-1):8080/api/quote | jq
+	curl -s $(docker-machine ip swarm-worker-1):8080/api/quote | jq
+	curl -s $(docker-machine ip swarm-worker-2):8080/api/quote | jq
 	
 	docker service scale quotes-service=3
+	
+	./swarm ls
 
-portal.js:
+portal:
 
-	docker service create --replicas 1 --name portal -p 9080:80 --network my-network --update-delay 10s --update-parallelism 1 magnuslarsson/portal.js:1
+	docker service create --replicas 1 --name portal -p 9090:9090 --network my-network --update-delay 10s --update-parallelism 1 magnuslarsson/portal:11
+
+	curl -s $(docker-machine ip swarm-manager-1):9090/quote | jq
+	curl -s $(docker-machine ip swarm-worker-1):9090/quote | jq
+	curl -s $(docker-machine ip swarm-worker-2):9090/quote | jq
 
 	# curl localhost:30000/home
+
+Lookup IP address of quotes-service:
+
+	docker ps | grep portal
+	docker exec -it 70e1a6f9ec2b nslookup quotes-service
+
 
 Web Browser URL:
 
 	http://localhost:9080
 	http://192.168.99.102:9080
 	
-**Note #1:** Scaling works fine using external curl command!!!
+**Note #1:** Scaling + round robin works fine using external curl command!!!
 
-**Note #2:** Scaling doesn't works with portal.js (uses one and the same IP address)!!!
+**Note #2:** Scaling + round robin doesn't works with portal (uses one and the same IP address)!!!
 Kan appache komma förbi Virtual Extensible LAN (VXLAN)???
 
-**Note #3:** Upgrade a bundle is done with the doker deploy command
+Se [https://github.com/containous/traefik/issues/718]()
+Ev oxå [https://github.com/docker/docker/issues/25325#issuecomment-245684162]()
+
+**Note #3:** Upgrade a bundle is done with the docker deploy command
 
 ### Teardown
 
 	docker service rm quotes-service
+	docker service rm portal
+	docker network rm my-network
+	
 	
