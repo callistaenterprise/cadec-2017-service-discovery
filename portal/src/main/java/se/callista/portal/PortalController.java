@@ -32,8 +32,8 @@ public class PortalController {
 	@Value("${quote.server}")
 	private String quoteServer;
 
-	@Value("${quote.port}")
-	private String quotePort;
+//	@Value("${quote.port}")
+//	private String quotePort;
 
 	@Inject
 	private RestOperations restTemplate;
@@ -45,7 +45,8 @@ public class PortalController {
 			LOG.debug("1. Log DNS entry before call");
 			printDNSCachedInfo(quoteServer);
 
-			String url = "http://" + quoteServer + ":" + quotePort + "/api/quote";
+//            String url = "http://" + quoteServer + ":" + quotePort + "/api/quote";
+            String url = "http://" + quoteServer + "/api/quote";
 			LOG.debug("2. Trying to get a quote from: {}", url);
 
 			quote = restTemplate.getForObject(url, Quote.class);
@@ -62,6 +63,7 @@ public class PortalController {
 		return quote;
 	}
 
+/*
 	@RequestMapping("/quoteWithoutRetries")
 	public String quoteNoRetries() {
 		String quote;
@@ -85,6 +87,7 @@ public class PortalController {
 		}
 		return quote;
 	}
+*/
 
 	@RequestMapping("/home")
     public String home(Model model, Locale locale) {
@@ -93,7 +96,7 @@ public class PortalController {
     	int retries = 0;
     	while (quote == null && retries < 5) {
 	        try {
-				quote = restTemplate.getForObject("http://"+quoteServer+":"+quotePort+"/quote?language="+language, Quote.class);
+				quote = restTemplate.getForObject("http://"+quoteServer+"/api/quote?language="+language, Quote.class);
 			} catch (RestClientException e) {
 				LOG.warn("Failed to get quote: " + e.getMessage());
 				retries++;
