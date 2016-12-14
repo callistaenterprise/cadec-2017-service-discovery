@@ -136,8 +136,20 @@ Test quotes locally:
 	java -jar build/libs/*.jar
 	java -jar build/libs/*.jar --server.port=8081
 	
-	url -s  localhost:8080/api/quote | jq .
-	url -s  localhost:8081/api/quote | jq .
+	curl -s  localhost:8080/api/quote | jq .
+	curl -s  localhost:8081/api/quote | jq .
+	
+	curl -s localhost:9090/quote | jq .
+	> {
+	>   "ipAddress": "192.168.1.198",
+	>   "quote": "Champagne should be cold, dry and free",
+	>   "language": "en"
+	> }	
+	
+	
+See [EurekaInstanceConfigBean](https://github.com/spring-cloud/spring-cloud-netflix/blob/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java) and [EurekaClientConfigBean](https://github.com/spring-cloud/spring-cloud-netflix/blob/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java) for more details of the configurable options.
+
+	
 	
 
 # docker-compose v1
@@ -149,8 +161,11 @@ Start up and monitor logs:
 
 In another terminal:
 
-	docker-compose exec quotes-service  wget -qO- localhost:9090/quote | jq
-	docker-compose exec portal wget -qO- localhost:8080/home | jq
+	# docker-compose exec quotes-service  wget -qO- localhost:9090/quote | jq
+	# docker-compose exec portal wget -qO- localhost:8080/home | jq
+
+	docker-compose-v2$ docker-compose exec portal wget -qO- localhost:9090/quote | jq
+	docker-compose exec portal wget -qO- quotes-service:8080/api/quote | jq
 
 Web browser: 
 

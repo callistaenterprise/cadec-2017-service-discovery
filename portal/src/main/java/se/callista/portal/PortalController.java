@@ -24,7 +24,6 @@ import org.springframework.web.client.RestTemplate;
 import javax.inject.Inject;
 import javax.net.ssl.HttpsURLConnection;
 
-//@Controller
 @RestController
 public class PortalController {
 
@@ -37,7 +36,6 @@ public class PortalController {
 	private String quotePort;
 
 	@Inject
-	@LoadBalanced
 	private RestOperations restTemplate;
 
 	@RequestMapping("/quote")

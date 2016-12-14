@@ -33,6 +33,8 @@ public class PortalApplication extends WebMvcConfigurerAdapter {
 	@Value("${server.port}")
 	private String port;
 
+
+	// TODO: Make the LoadBalanced bean annotation conditional, based on if spring.cloud.discovery.enabled is true or false...
 	@Bean
 	@LoadBalanced
 	public RestTemplate restTemplate() {

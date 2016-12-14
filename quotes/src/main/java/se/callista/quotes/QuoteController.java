@@ -10,6 +10,7 @@ import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,7 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class QuoteController {
 
     private static final Log LOG = LogFactory.getLog(QuoteController.class);
-    
+
+    @Value("${server.port}")
+    private String port;
+
     Map<String, List<String>> quotes;
 	Random random = new Random();
 	String ipAddress = findMyIpAddress();
@@ -39,7 +43,7 @@ public class QuoteController {
 
             List<String> list = quotes.get(language);
             String quoteText = list.get(random.nextInt(list.size()));
-            Quote quote = new Quote(quoteText, language, ipAddress);
+            Quote quote = new Quote(quoteText, language, ipAddress + ":" + port);
             LOG.info("Delivered quote: '" + quoteText + "'");
             return quote;
         } else {
