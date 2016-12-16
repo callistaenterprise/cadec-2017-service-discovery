@@ -18,7 +18,7 @@ quotes-service.ribbon.listOfServers: quotes-service:8080
 ---
 # For usage with plain java -jar and hardcoded path to single quotes-serve
 spring:
-  profiles: local
+  profiles: no-discovery
 
 quotes-service.ribbon.listOfServers: localhost:8080
 

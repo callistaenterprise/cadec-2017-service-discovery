@@ -1,0 +1,38 @@
+<h2>$http Service Tutorial, v2</h2>
+
+<button ng-click="$ctrl.getRequest()">Test Rest</button>
+
+<table border="1" cellpadding="10">
+    <thead>
+    <tr>
+        <th>
+            Timestamp
+        </th>
+        <th>
+            Language
+        </th>
+        <th>
+            Quote
+        </th>
+        <th>
+          IP Address
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="quote in $ctrl.quotes">
+        <td>
+            {{ quote.timestamp }}
+        </td>
+        <td>
+            {{ quote.language }}
+        </td>
+        <td>
+          {{ quote.text }}
+        </td>
+        <td>
+          {{ quote.ipAddress }}
+        </td>
+    </tr>
+    </tbody>
+</table>

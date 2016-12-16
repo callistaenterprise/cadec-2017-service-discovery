@@ -38,7 +38,7 @@ public class PortalController {
 	@Inject
 	private RestOperations restTemplate;
 
-	@RequestMapping("/quote")
+	@RequestMapping("/api/quote")
 	public Quote quote() {
 		Quote quote;
 		try {
