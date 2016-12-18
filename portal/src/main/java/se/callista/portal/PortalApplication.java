@@ -2,8 +2,10 @@ package se.callista.portal;
 
 import java.security.Security;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,6 +43,7 @@ public class PortalApplication extends WebMvcConfigurerAdapter {
 		HttpComponentsClientHttpRequestFactory factory =
 			new HttpComponentsClientHttpRequestFactory(HttpClientBuilder.create()
 				.setSSLHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier())
+        .setConnectionManager(new PoolingHttpClientConnectionManager(1, TimeUnit.SECONDS))
 				.build());
 
 		factory.setConnectTimeout(500);
@@ -59,8 +62,8 @@ public class PortalApplication extends WebMvcConfigurerAdapter {
 		SpringApplication.run(PortalApplication.class, args);
 
 		LOG.info("JVM DNS Cache TTL: {}", Security.getProperty("networkaddress.cache.ttl"));
-//		java.security.Security.setProperty("networkaddress.cache.ttl" , "1-");
-//		LOG.info("JVM DNS Cache TTL: {}", Security.getProperty("networkaddress.cache.ttl"));
+		java.security.Security.setProperty("networkaddress.cache.ttl" , "3");
+		LOG.info("JVM DNS Cache TTL: {}", Security.getProperty("networkaddress.cache.ttl"));
 		LOG.info("JVM DNS Cache Negative TTL: {}", Security.getProperty("networkaddress.cache.negative.ttl"));
 		LOG.info("PortalApplication v{} started", verNo);
 		LOG.info("PortalApplication dummy log-message...");
@@ -79,14 +82,14 @@ public class PortalApplication extends WebMvcConfigurerAdapter {
 	    slr.setDefaultLocale(new Locale("sv"));
 	    return slr;
 	}
-	
+
 	@Bean
     public LocaleChangeInterceptor localeChangeInterceptor() {
         LocaleChangeInterceptor lci = new LocaleChangeInterceptor();
         lci.setParamName("language");
         return lci;
     }
- 
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(localeChangeInterceptor());

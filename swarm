@@ -15,7 +15,7 @@ function note() {
 
 function listContainerIpAddressesInADockerMachine(){
 
-    local dockerHost containers
+    local dockerHost containers ip
     dockerHost=$1
 
     note "Containers in ${dockerHost}:"
@@ -25,7 +25,8 @@ function listContainerIpAddressesInADockerMachine(){
     if [ -z "${containers}" ]; then
         log "No containers run on Docker host ${dockerHost}"
     else
-    	docker $(docker-machine config ${dockerHost}) inspect -f '{{ .Config.Hostname }} {{ .NetworkSettings.Networks.ingress.IPAddress }} {{ .Config.Image }}' $containers
+    	docker $(docker-machine config ${dockerHost}) inspect -f 'Ingress: {{ .Config.Hostname }} {{ .NetworkSettings.Networks.ingress.IPAddress }} {{ .Config.Image }}' $containers
+    	docker $(docker-machine config ${dockerHost}) inspect -f 'my_network: {{ .Config.Hostname }} {{ .NetworkSettings.Networks.my_network.IPAddress }} {{ .Config.Image }}' $containers
     fi
 
 }
@@ -46,6 +47,16 @@ function findContainerBasedOnIpAddressInADockerMachine(){
 
         for c in $( docker $(docker-machine config  ${dockerHost}) ps -q ); do
         	foundIpAddress=$(docker $(docker-machine config ${dockerHost}) inspect -f '{{ .NetworkSettings.Networks.ingress.IPAddress }}' $c)
+
+            if [ "$foundIpAddress" = "$idAddress" ]
+            then
+                log "Found the container, shutting down..."
+                docker $(docker-machine config ${dockerHost}) kill $c
+            fi
+        done
+
+        for c in $( docker $(docker-machine config  ${dockerHost}) ps -q ); do
+        	foundIpAddress=$(docker $(docker-machine config ${dockerHost}) inspect -f '{{ .NetworkSettings.Networks.my_network.IPAddress }}' $c)
 
             if [ "$foundIpAddress" = "$idAddress" ]
             then

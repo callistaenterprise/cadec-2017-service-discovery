@@ -68,12 +68,13 @@ Using Docker for Mac (NOT STABLE ENOUGH???):
 
 Build Docker image:
 
+	cd quotes
 	./gradlew clean build
 	docker build -t magnuslarsson/quotes .
 
 Tag and push Docker image:
 	
-	version=11
+	version=12
 	docker tag magnuslarsson/quotes magnuslarsson/quotes:${version}
 	docker push magnuslarsson/quotes:${version}
 
@@ -81,6 +82,8 @@ Tag and push Docker image:
 # portal
 
 ## Build js part:
+	
+	cd portal
 
 Cleanup, if required:
 
@@ -93,15 +96,22 @@ Install dependencies:
 
 Build dist - folder:
 
-	node_modules/gulp/bin/gulp.js build	
+	node_modules/gulp/bin/gulp.js clean
+	node_modules/gulp/bin/gulp.js build
 	
 Remove main-folder that is placed in the dist-folder:
 
-	rm -r dist/mail
+	rm -rv dist/main
+	rm -rv dist/test
+
+Clean the static-folder:
+
+	rm -rv src/main/resources/static
+	mkdir src/main/resources/static
 
 Copy dist folder to the static-folder in the java projekt:
 
-	cp -r dist/* src/main/resources/static 
+	cp -rv dist/* src/main/resources/static 
 
 **NOTE:** Ensure that the static folder is added to .gitignore so that these files not end up in th git-repo
 
@@ -126,7 +136,7 @@ Push latest Docker image:
 	
 Tag and push Docker image:
 	
-	version=11
+	version=12
 	docker tag magnuslarsson/portal magnuslarsson/portal:${version}
 	docker push magnuslarsson/portal:${version}
 
@@ -549,6 +559,11 @@ Direct docker commands to a manager in the cluster:
 	
 	eval $(docker-machine env swarm-manager-1)    
 
+Or a wroker:
+
+	eval $(docker-machine env swarm-worker-1)    
+	eval $(docker-machine env swarm-worker-2)    
+
 Inspect the cluster;
 	
 	docker info
@@ -574,6 +589,19 @@ Remove nodes:
     docker-machine rm swarm-manager-1
     docker-machine rm swarm-worker-1
     docker-machine rm swarm-worker-2
+
+Stop swarm:
+
+	docker-machine stop swarm-manager-1 swarm-worker-1 swarm-worker-2
+
+Start swarm:
+
+	docker-machine start swarm-manager-1 swarm-worker-1 swarm-worker-2
+
+
+Restart swarm:
+
+	docker-machine restart swarm-manager-1 swarm-worker-1 swarm-worker-2
 
 ## Docker Swarm visualiser
 
@@ -608,16 +636,23 @@ Open a web browser using the ip address:
 	docker inspect -f '{{ .Config.Hostname }} {{ .NetworkSettings.Networks.ingress.IPAddress }}' $(docker ps -q)
 
 ## Deploy quotes-service and portal	
-quotes-service:
+network:
 
 	# docker-compose bundle
 	# docker deploy dockercomposev2
 
-	docker network create --driver overlay my-network
+	docker network create --driver overlay my_network
+
+
+quotes-service:
 	
-	docker service create --replicas 1 --name quotes-service -p 8080:8080 --network my-network --update-delay 10s --update-parallelism 1 magnuslarsson/quotes:11
+	# docker service create --replicas 1 --name quotes-service -p 8080:8080 --network my_network --update-delay 10s --update-parallelism 1 magnuslarsson/quotes:11
+
+	docker service create --replicas 1 --name quotes-service -p 8080:8080 --network my_network magnuslarsson/quotes:12
+
 	docker service ls
 	docker service ps quotes-service
+	docker service ps quotes-service --filter "desired-state=running"
 	docker service inspect quotes-service	
 	curl -s $(docker-machine ip swarm-manager-1):8080/api/quote | jq
 	curl -s $(docker-machine ip swarm-worker-1):8080/api/quote | jq
@@ -626,14 +661,21 @@ quotes-service:
 	docker service scale quotes-service=3
 	
 	./swarm ls
+	
+	for ((i=1;i<=10;i++)); do curl -s $(docker-machine ip swarm-manager-1):8080/api/quote | jq .ipAddress; sleep 1; done	
+	
 
 portal:
 
-	docker service create --replicas 1 --name portal -p 9090:9090 --network my-network --update-delay 10s --update-parallelism 1 magnuslarsson/portal:11
+	# docker service create --replicas 1 --name portal -p 9090:9090 --network my_network --update-delay 10s --update-parallelism 1 magnuslarsson/portal:11
 
-	curl -s $(docker-machine ip swarm-manager-1):9090/quote | jq
-	curl -s $(docker-machine ip swarm-worker-1):9090/quote | jq
-	curl -s $(docker-machine ip swarm-worker-2):9090/quote | jq
+	docker service create --replicas 1 --name portal -p 9090:9090 --network my_network magnuslarsson/portal:12
+
+	curl -s $(docker-machine ip swarm-manager-1):9090/api/quote | jq
+	curl -s $(docker-machine ip swarm-worker-1):9090/api/quote | jq
+	curl -s $(docker-machine ip swarm-worker-2):9090/api/quote | jq
+	
+	for ((i=1;i<=10;i++)); do curl -s $(docker-machine ip swarm-manager-1):9090/api/quote | jq .ipAddress; sleep 1; done	
 
 	# curl localhost:30000/home
 
@@ -650,7 +692,8 @@ Web Browser URL:
 	
 **Note #1:** Scaling + round robin works fine using external curl command!!!
 
-**Note #2:** Scaling + round robin doesn't works with portal (uses one and the same IP address)!!!
+**Note #2:** Scaling + round robin now works with portal!!!
+HttpCLient ConMgr TTL = 1 sec löste problemet...
 Kan appache komma förbi Virtual Extensible LAN (VXLAN)???
 
 Se [https://github.com/containous/traefik/issues/718]()
@@ -658,10 +701,12 @@ Ev oxå [https://github.com/docker/docker/issues/25325#issuecomment-245684162]()
 
 **Note #3:** Upgrade a bundle is done with the docker deploy command
 
+**Note #4:** When killing a quote container a few missing reqs are noted when calling the portal while calling the quotes service directly works fine!
+
 ### Teardown
 
 	docker service rm quotes-service
 	docker service rm portal
-	docker network rm my-network
+	docker network rm my_network
 	
 	

@@ -38,56 +38,77 @@ public class PortalController {
 	@Inject
 	private RestOperations restTemplate;
 
-	@RequestMapping("/api/quote")
-	public Quote quote() {
+//  @RequestMapping("/quoteWithoutRetries")
+  @RequestMapping("/api/quote")
+  public Quote quote() {
+    Quote quote = null;
+    int retries = 0;
+    while (quote == null && retries < 5) {
+      try {
+        LOG.debug("Attempt #: " + retries);
+        quote = quoteTryOnce();
+      } catch (Exception e) {
+        LOG.warn("Failed to get quote: " + e.getMessage());
+        retries++;
+      }
+    }
+    if (quote == null) {
+      throw new RuntimeException("Cannot get quote");
+    }
+
+    return quote;
+  }
+
+	private Quote quoteTryOnce() {
 		Quote quote;
 		try {
-			LOG.debug("1. Log DNS entry before call");
+			LOG.debug("1.1. Log DNS entry before call");
 			printDNSCachedInfo(quoteServer);
 
-//            String url = "http://" + quoteServer + ":" + quotePort + "/api/quote";
-            String url = "http://" + quoteServer + "/api/quote";
-			LOG.debug("2. Trying to get a quote from: {}", url);
+      // String url = "http://" + quoteServer + ":" + quotePort + "/api/quote";
+      String url = "http://" + quoteServer + "/api/quote";
+			LOG.debug("1.2. Trying to get a quote from: {}", url);
 
 			quote = restTemplate.getForObject(url, Quote.class);
 
-			LOG.debug("3. Log DNS entry after call");
+			LOG.debug("1.3. Log DNS entry after call");
 			printDNSCachedInfo(quoteServer);
 
-			LOG.info("PortalController dummy log-message...");
+			LOG.info("1.4 PortalController dummy log-message...");
 
 		} catch (Exception e) {
-			LOG.warn("Failed to get quote: " + e.getMessage());
+			LOG.warn("1.e Failed to get quote: " + e.getMessage());
 			throw new RuntimeException(e);
 		}
 		return quote;
 	}
 
-/*
 	@RequestMapping("/quoteWithoutRetries")
+//  @RequestMapping("/api/quote")
 	public String quoteNoRetries() {
 		String quote;
 		try {
-			LOG.debug("1. Log DNS entry before call");
+			LOG.debug("2.1. Log DNS entry before call");
 			printDNSCachedInfo(quoteServer);
 
-			String url = "http://" + quoteServer + ":" + quotePort + "/api/quote";
-			LOG.debug("2. Trying to get a quote using plain HttpURLConnection from: {}", url);
+      // String url = "http://" + quoteServer + ":" + quotePort + "/api/quote";
+      // String url = "http://" + quoteServer + "/api/quote";
+      String url = "http://swarm-worker-1:8080/api/quote";
+			LOG.debug("2.2. Trying to get a quote using plain HttpURLConnection from: {}", url);
 
 			quote = sendGet(url);
 
-			LOG.debug("3. Log DNS entry after call");
+			LOG.debug("2.3. Log DNS entry after call");
 			printDNSCachedInfo(quoteServer);
 
-			LOG.info("PortalController dummy log-message...");
+			LOG.info("2.4 PortalController dummy log-message...");
 
 		} catch (Exception e) {
-			LOG.warn("Failed to get quote: " + e.getMessage());
+			LOG.warn("2.e Failed to get quote: " + e.getMessage());
 			throw new RuntimeException(e);
 		}
 		return quote;
 	}
-*/
 
 	@RequestMapping("/home")
     public String home(Model model, Locale locale) {
@@ -182,6 +203,8 @@ public class PortalController {
 			for (InetAddress address : addresses) {
 				ads.add(address.getHostAddress());
 			}
+
+			LOG.debug("Found DNS entry for {}, expires: {}, addresses: {}", hi.getKey(), new Date(expires), ads);
 
 			if (dnsName.equalsIgnoreCase(hi.getKey())) {
 				return ads + " " + new Date(expires);
