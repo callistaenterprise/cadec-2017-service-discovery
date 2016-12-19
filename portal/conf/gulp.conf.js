@@ -17,8 +17,8 @@ exports.ngModule = 'app';
  *  The main paths of your project handle these with care
  */
 exports.paths = {
-  src: 'src',
-  dist: 'dist',
+  src: 'javascript',
+  dist: 'src/main/resources/static',
   tmp: '.tmp',
   e2e: 'e2e',
   tasks: 'gulp_tasks'

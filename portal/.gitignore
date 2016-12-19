@@ -27,7 +27,6 @@ nbdist/
 ### Javascript ###
 .tmp/
 coverage/
-dist/
 node_modules/
 bower_components/
 src/main/resources/static/

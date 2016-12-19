@@ -94,35 +94,15 @@ Install dependencies:
 
 	npm install && bower install
 
-Build dist - folder:
+Build the webapp under the src/main/resources/static - folder:
 
 	node_modules/gulp/bin/gulp.js clean
 	node_modules/gulp/bin/gulp.js build
 	
-Remove main-folder that is placed in the dist-folder:
-
-	rm -rv dist/main
-	rm -rv dist/test
-
-Clean the static-folder:
-
-	rm -rv src/main/resources/static
-	mkdir src/main/resources/static
-
-Copy dist folder to the static-folder in the java projekt:
-
-	cp -rv dist/* src/main/resources/static 
-
 **NOTE:** Ensure that the static folder is added to .gitignore so that these files not end up in th git-repo
 
 **Potential improvements:**
 
-1. Currently all js source code is placed directly under the src-folder, can we place it under a sub-folder, e.g. named src/main/js or src/main/web in the same way as the java code is placed under src/main/java...
-
-1. Currently the gulp.js build command copies the folders src/main/java and src/main/resources into the dist folder which cause chaos in the Java IDE if copied into the folder src/main/resource :-)
-
-  Can the build command be limited to only copy the js artifacts to the dist folder?  
-(maybe this will be solved automatically if the previous issue is resolved?)
 1. Currently all steps above are done manually, can they be automated by extending the gradle script?
 
 ## Build Docker image:
