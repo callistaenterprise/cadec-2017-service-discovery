@@ -24,6 +24,7 @@ docker-compose up ger ibland följande fel (ej down innan)
 	Response body:
 	dial unix /Users/magnus/Library/Containers/com.docker.docker/Data/*00000003.00000948: connect: connection refused
 
+**UPPGRADERA TILL 1.12.5!!!**
 
 # TODO
 
@@ -74,7 +75,7 @@ Build Docker image:
 
 Tag and push Docker image:
 	
-	version=12
+	version=14
 	docker tag magnuslarsson/quotes magnuslarsson/quotes:${version}
 	docker push magnuslarsson/quotes:${version}
 
@@ -116,7 +117,7 @@ Push latest Docker image:
 	
 Tag and push Docker image:
 	
-	version=12
+	version=14
 	docker tag magnuslarsson/portal magnuslarsson/portal:${version}
 	docker push magnuslarsson/portal:${version}
 
