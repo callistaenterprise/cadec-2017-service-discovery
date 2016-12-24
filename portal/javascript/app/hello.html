@@ -1,28 +1,31 @@
 <h2>$http Service Tutorial, v2</h2>
 
+<div>
+  Sleep between requests
+  <rzslider
+    rz-slider-model="$ctrl.timeoutBetweenRequests"
+    rz-slider-options="$ctrl.slider.options"></rzslider>
+</div>
+
 <button ng-click="$ctrl.getRequest()">Test Rest</button>
+<button ng-click="$ctrl.toggleRequests()">
+  <span data-ng-if="!$ctrl.running">Start</span>
+  <span data-ng-if="$ctrl.running">Stop</span>
+</button>
 
 <table border="1" cellpadding="10">
     <thead>
     <tr>
-        <th>
-            Timestamp
-        </th>
-        <th>
-            Language
-        </th>
-        <th>
-            Quote
-        </th>
-        <th>
-          IP Address
-        </th>
+        <th>Timestamp</th>
+        <th>Language</th>
+        <th>Quote</th>
+        <th>IP Address</th>
     </tr>
     </thead>
     <tbody>
     <tr ng-repeat="quote in $ctrl.quotes">
         <td>
-            {{ quote.timestamp }}
+            {{ quote.timestamp | date:"yyyy-MM-dd HH:mm:ss" }}
         </td>
         <td>
             {{ quote.language }}
