@@ -333,7 +333,89 @@ Test:
 
 	eval $(minikube docker-env)
 
-## Google Cloud Platform
+## Google Cloud Platform - Compute Engine
+
+Source: [http://blog.kubernetes.io/2016/07/autoscaling-in-kubernetes.html?m=1](http://blog.kubernetes.io/2016/07/autoscaling-in-kubernetes.html?m=1)
+
+Prereq: 
+
+	brew install gnu-sed
+	
+Env vars:	
+
+	export NUM_NODES=2
+	export KUBE_AUTOSCALER_MIN_NODES=2
+	export KUBE_AUTOSCALER_MAX_NODES=5
+	export KUBE_ENABLE_CLUSTER_AUTOSCALER=true
+
+Download and install K8S locally:
+
+	cd /Users/magnus/Documents/projects/cadec-2017/service-discovery	curl -sS https://get.k8s.io | bash
+
+Start cluster:
+
+	cd kubernetes
+	./cluster/kube-up.sh
+	
+	Wrote config for k8s-labb-3_kubernetes to /Users/magnus/.kube/config
+	
+	Kubernetes cluster is running.  The master is running at:
+	  https://130.211.139.68
+	
+	The user name and password to use is located in /Users/magnus/.kube/config.
+	
+	Your active configuration is: [default]
+	
+	Project: k8s-labb-3
+	Zone: us-central1-b
+		
+	Kubernetes master is running at https://130.211.139.68
+	GLBCDefaultBackend is running at https://130.211.139.68/api/v1/proxy/namespaces/kube-system/services/default-http-backend
+	Heapster is running at https://130.211.139.68/api/v1/proxy/namespaces/kube-system/services/heapster
+	KubeDNS is running at https://130.211.139.68/api/v1/proxy/namespaces/kube-system/services/kube-dns
+	kubernetes-dashboard is running at https://130.211.139.68/api/v1/proxy/namespaces/kube-system/services/kubernetes-dashboard
+	Grafana is running at https://130.211.139.68/api/v1/proxy/namespaces/kube-system/services/monitoring-grafana
+	InfluxDB is running at https://130.211.139.68/api/v1/proxy/namespaces/kube-system/services/monitoring-influxdb
+	
+	To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
+Verify cluster nodes:
+	
+	kubectl get nodes
+
+
+Deploy:
+
+	kubectl run php-apache \
+	 --image=gcr.io/google_containers/hpa-example \
+	 --requests=cpu=500m,memory=500M --expose --port=80
+
+	kubectl get deployment
+	kubectl get pods
+
+Test deployment
+
+	kubectl run -i --tty service-test --image=busybox /bin/sh
+	# wget -q -O- http://php-apache.default.svc.cluster.local
+	# exit
+	
+	kubectl attach service-test-427663219-tl83f -c service-test -i -t
+	
+Horizontal autoscalar:
+
+	kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
+
+	kubectl get hpa
+		
+Put some load:		
+
+	kubectl run -i --tty load-generator --image=busybox /bin/sh
+	# while true; do wget -q -O- http://php-apache.default.svc.cluster.local; done		
+Destroy cluster:
+
+	./cluster/kube-down.sh
+	
+## Google Cloud Platform - Container Engine
 
 	#gcloud auth login
 	#gcloud auth list
