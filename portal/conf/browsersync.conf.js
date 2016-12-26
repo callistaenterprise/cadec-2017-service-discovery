@@ -13,7 +13,7 @@ module.exports = function () {
         '/bower_components': 'bower_components'
       },
       middleware: [
-        proxyMiddleware('/api', {target: 'http://localhost:9080/', changeOrigin: true, secure: false}),
+        proxyMiddleware('/api', {target: 'http://localhost:8080/', changeOrigin: true, secure: false}),
       ]
     },
     open: false
