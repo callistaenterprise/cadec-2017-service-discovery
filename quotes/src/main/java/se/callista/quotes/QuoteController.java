@@ -37,8 +37,9 @@ public class QuoteController {
     
     @RequestMapping("/api/quote")
     public Quote quote(
-            @RequestParam(value="language", defaultValue="en") String language,
-            @RequestParam(required=false,   defaultValue="12") int strength) {
+        @RequestParam(required=false, defaultValue="en") String language,
+        @RequestParam(required=false, defaultValue="12") int strength) {
+
         if (QuotesHealthIndicator.isAlive) {
 
             // FIX ME! Bug in version 3, corrected in version 4

@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
@@ -35,13 +36,16 @@ public class PortalController {
 
 //  @RequestMapping("/quoteWithoutRetries")
   @RequestMapping("/api/quote")
-  public Quote quote() {
+  public Quote quote(
+    @RequestParam(required=false, defaultValue="en") String language,
+    @RequestParam(required=false, defaultValue="12") int strength) {
+
     Quote quote = null;
     int retries = 0;
     while (quote == null && retries < 5) {
       try {
         LOG.debug("Attempt #: " + retries);
-        quote = quoteTryOnce();
+        quote = quoteTryOnce(language, strength);
       } catch (Exception e) {
         LOG.warn("Failed to get quote: " + e.getMessage());
         retries++;
@@ -54,14 +58,15 @@ public class PortalController {
     return quote;
   }
 
-	private Quote quoteTryOnce() {
+	private Quote quoteTryOnce(String language, int strength) {
+
 		Quote quote;
 		try {
 			LOG.debug("1.1. Log DNS entry before call");
 			printDNSCachedInfo(quoteServer);
 
       // String url = "http://" + quoteServer + ":" + quotePort + "/api/quote";
-      String url = "http://" + quoteServer + "/api/quote";
+      String url = "http://" + quoteServer + "/api/quote?language=" + language + "&strength=" + strength;
 			LOG.debug("1.2. Trying to get a quote from: {}", url);
 
 			quote = restTemplate.getForObject(url, Quote.class);
