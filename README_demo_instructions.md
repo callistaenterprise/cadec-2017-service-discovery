@@ -84,53 +84,38 @@ Open a web browser using the ip address:
 
 Show empty cluster using visualizer: [http://192.168.99.102:8000](http://192.168.99.102:8000)
 
-**network:**
+**network**
 
 	docker network create --driver overlay my_network
 
-**quotes-service:**
+**quotes-service**
 	
 	docker service create --replicas 1 --name quotes-service -p 8080:8080 --network my_network magnuslarsson/quotes:14
 
-	docker service ls
-	docker service ps quotes-service --filter "desired-state=running"
-	
-	curl -s $(docker-machine ip swarm-manager-1):8080/api/quote | jq
-	curl -s $(docker-machine ip swarm-worker-1):8080/api/quote | jq
-	curl -s $(docker-machine ip swarm-worker-2):8080/api/quote | jq
-	
-	docker service scale quotes-service=3
-		
-	for ((i=1;i<=10;i++)); do curl -s $(docker-machine ip swarm-manager-1):8080/api/quote | jq .ipAddress; sleep 1; done	
-	
-
-**portal:**
+**portal**
 
 	docker service create --replicas 1 --name portal -p 9090:9090 --network my_network magnuslarsson/portal:14
 
-	curl -s $(docker-machine ip swarm-manager-1):9090/api/quote | jq
-	curl -s $(docker-machine ip swarm-worker-1):9090/api/quote | jq
-	curl -s $(docker-machine ip swarm-worker-2):9090/api/quote | jq
-	
-	for ((i=1;i<=10;i++)); do curl -s $(docker-machine ip swarm-manager-1):9090/api/quote | jq .ipAddress; sleep 1; done	
+Show deployed cluster using visualizer: [http://192.168.99.102:8000](http://192.168.99.102:8000)
+
+Goto [http://localhost:9090](http://localhost:9090) and start the portal
+
+**scale quotesservice
+
+	docker service scale quotes-service=3
 
 Show deployed cluster using visualizer: [http://192.168.99.102:8000](http://192.168.99.102:8000)
 
+Note load balancing working in portal!
 
 **kill a quote-service:**
 
 Show cluster using visualizer: [http://192.168.99.102:8000](http://192.168.99.102:8000)
 
-1. in one terminal call the portal:
+	./swarm ls
+	./swarm kill ${ip-address}
 
-		for ((i=1;i<=180;i++)); do curl -s $(docker-machine ip swarm-manager-1):9090/api/quote | jq .ipAddress; sleep 1; done
-
-2. in another terminal:
-
-		./swarm ls
-		./swarm kill ${ip-address}
-
-3. verify that no call to the portal fails while one of the quote services is restarted by Swarm!	
+verify that no call to the portal fails while one of the quote services is restarted by Swarm!	
 
 **kill a node:**
 
@@ -139,10 +124,6 @@ Show cluster using visualizer: [http://192.168.99.102:8000](http://192.168.99.10
 1. Look up a worker node where only quote services run:
 
 		./swarm ls
-
-1. in one terminal call the portal:
-
-		for ((i=1;i<=180;i++)); do curl -s $(docker-machine ip swarm-manager-1):9090/api/quote | jq .ipAddress; sleep 1; done
 
 1. kill the worker node:
 

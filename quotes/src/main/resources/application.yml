@@ -1,3 +1,5 @@
+security.ignored: /**
+
 server.port: 8080
 
 #logging.level.root: trace

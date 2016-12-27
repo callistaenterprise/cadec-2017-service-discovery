@@ -31,8 +31,7 @@ quotes-service.ribbon.listOfServers: quotes-service:8080
 spring:
   profiles: no-discovery
 
-#quotes-service.ribbon.listOfServers: localhost:8080
-quotes-service.ribbon.listOfServers: swarm-worker-1:8080
+quotes-service.ribbon.listOfServers: localhost:8080
 
 
 ---

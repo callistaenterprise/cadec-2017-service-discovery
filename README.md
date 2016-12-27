@@ -75,7 +75,7 @@ Build Docker image:
 
 Tag and push Docker image:
 	
-	version=14
+	version=15
 	docker tag magnuslarsson/quotes magnuslarsson/quotes:${version}
 	docker push magnuslarsson/quotes:${version}
 
@@ -117,7 +117,7 @@ Push latest Docker image:
 	
 Tag and push Docker image:
 	
-	version=14
+	version=15
 	docker tag magnuslarsson/portal magnuslarsson/portal:${version}
 	docker push magnuslarsson/portal:${version}
 
@@ -224,6 +224,20 @@ Shudown
 			
 # docker-compose v2
 
+If 
+
+	Unexpected API error for dockercomposev2_portal_1 (HTTP code 500)
+	Response body:
+	dial unix /Users/magnus/Library/Containers/com.docker.docker/Data/*00000003.00000948: connect: connection refused
+
+Then
+
+	docker-compose down
+	
+Or
+
+	Restart Docker for Mac...
+	
 Start up and monitor logs:
 
 	cd docker-compose-v2
@@ -234,7 +248,7 @@ In another terminal:
 
 	docker-compose exec quotes-service  wget -qO- localhost:8080/api/quote | jq .
 	docker-compose exec portal wget -qO- quotes-service:8080/api/quote | jq .
-	docker-compose exec portal wget -qO- localhost:9090/quote | jq 
+	docker-compose exec portal wget -qO- localhost:9090/api/quote | jq 
 
 	docker run -it --rm --network dockercomposev2_default centos curl quotes-service:8080/api/quote | jq .
 	curl -s localhost:9090/quote | jq .
@@ -343,10 +357,12 @@ Prereq:
 	
 Env vars:	
 
-	export NUM_NODES=2
-	export KUBE_AUTOSCALER_MIN_NODES=2
-	export KUBE_AUTOSCALER_MAX_NODES=5
+	export KUBE_GCE_ZONE=europe-west1-b
+	export NODE_SIZE=n1-standard-1
+	export NUM_NODES=1
 	export KUBE_ENABLE_CLUSTER_AUTOSCALER=true
+	export KUBE_AUTOSCALER_MIN_NODES=1
+	export KUBE_AUTOSCALER_MAX_NODES=5
 
 Download and install K8S locally:
 
@@ -379,6 +395,10 @@ Start cluster:
 	
 	To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
 
+Admin password:
+
+	grep password /Users/magnus/.kube/config
+
 Verify cluster nodes:
 	
 	kubectl get nodes
@@ -386,31 +406,110 @@ Verify cluster nodes:
 
 Deploy:
 
-	kubectl run php-apache \
-	 --image=gcr.io/google_containers/hpa-example \
-	 --requests=cpu=500m,memory=500M --expose --port=80
+	kubectl run quotes --image=magnuslarsson/quotes:15 --port=8080 
+	kubectl expose deployment quotes --type=LoadBalancer --name quotes-service
+
+	kubectl run portal --image=magnuslarsson/portal:15 --port=9090 
+	kubectl expose deployment portal --type=LoadBalancer --name portal-service
 
 	kubectl get deployment
 	kubectl get pods
+	kubectl get svc quotes-service
+	kubectl get svc portal-service
 
-Test deployment
 
-	kubectl run -i --tty service-test --image=busybox /bin/sh
-	# wget -q -O- http://php-apache.default.svc.cluster.local
-	# exit
+	#kubectl run php-apache \
+	# --image=gcr.io/google_containers/hpa-example \
+	# --requests=cpu=500m,memory=500M --expose --port=80
+
+
+Test deployment (using EXTERNAL-IP from get svc)
+
+	MYHOST=130.211.85.2
+	curl -s http://$MYHOST:8080/api/quote | jq .
+
+	#kubectl run -i --tty service-test --image=busybox /bin/sh
+	# # wget -q -O- http://php-apache.default.svc.cluster.local
+	# # exit
 	
-	kubectl attach service-test-427663219-tl83f -c service-test -i -t
+	#kubectl attach service-test-427663219-tl83f -c service-test -i -t
 	
 Horizontal autoscalar:
 
-	kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
+	kubectl autoscale deployment quotes --cpu-percent=50 --min=1 --max=10
+
+	# kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
 
 	kubectl get hpa
 		
-Put some load:		
+Put some load, start two:		
 
-	kubectl run -i --tty load-generator --image=busybox /bin/sh
-	# while true; do wget -q -O- http://php-apache.default.svc.cluster.local; done		
+	while true; do curl -s http://$MYHOST:8080/api/quote?strength=14 | jq .; done
+	
+	# kubectl run -i --tty load-generator --image=busybox /bin/sh
+	# # while true; do wget -q -O- http://php-apache.default.svc.cluster.local; done		
+
+Expected sample output:
+
+	$ kubectl get hpa
+	NAME      REFERENCE           TARGET    CURRENT   MINPODS   MAXPODS   AGE
+	quotes    Deployment/quotes   50%       433%      1         10        3m
+	
+	$ kubectl get pods
+	NAME                      READY     STATUS    RESTARTS   AGE
+	quotes-4029858897-2nsm6   1/1       Running   0          2m
+	quotes-4029858897-5xn93   1/1       Running   0          17m
+	quotes-4029858897-82vdc   1/1       Running   0          6m
+	quotes-4029858897-d5ctp   1/1       Running   0          6m
+	quotes-4029858897-s6sl4   0/1       Pending   0          2m
+	quotes-4029858897-t7sbj   1/1       Running   0          6m
+	quotes-4029858897-w8crj   0/1       Pending   0          2m
+	quotes-4029858897-xm68g   1/1       Running   0          2m
+
+	$ kubectl get nodes
+	NAME                           STATUS                     AGE
+	kubernetes-master              Ready,SchedulingDisabled   21m
+	kubernetes-minion-group-4ptj   Ready                      22m
+	kubernetes-minion-group-l6kv   NotReady                   6s
+	kubernetes-minion-group-xq6d   Ready                      18m
+
+...after a while...
+
+	$ kubectl get pods
+	NAME                      READY     STATUS    RESTARTS   AGE
+	quotes-4029858897-2nsm6   1/1       Running   0          4m
+	quotes-4029858897-5xn93   1/1       Running   0          20m
+	quotes-4029858897-82vdc   1/1       Running   0          8m
+	quotes-4029858897-9h4sx   1/1       Running   0          37s
+	quotes-4029858897-d5ctp   1/1       Running   0          8m
+	quotes-4029858897-s6sl4   1/1       Running   0          4m
+	quotes-4029858897-t7sbj   1/1       Running   0          8m
+	quotes-4029858897-w8crj   1/1       Running   0          4m
+	quotes-4029858897-wzhzf   1/1       Running   0          37s
+	quotes-4029858897-xm68g   1/1       Running   0          4m
+
+	$ kubectl get nodes
+	NAME                           STATUS                     AGE
+	kubernetes-master              Ready,SchedulingDisabled   23m
+	kubernetes-minion-group-4ptj   Ready                      23m
+	kubernetes-minion-group-l6kv   Ready                      1m
+	kubernetes-minion-group-xq6d   Ready                      19m
+
+...stop the load and wait to see automatic scale down...
+
+	$ kubectl get pods
+	NAME                      READY     STATUS    RESTARTS   AGE
+	quotes-4029858897-5xn93   1/1       Running   0          16h
+	
+	$ kubectl get nodes
+	NAME                           STATUS                     AGE
+	kubernetes-master              Ready,SchedulingDisabled   16h
+	kubernetes-minion-group-4ptj   Ready                      16h
+
+
+
+
+
 Destroy cluster:
 
 	./cluster/kube-down.sh
