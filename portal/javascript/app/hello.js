@@ -8,11 +8,13 @@ angular
       vm.quotes = [];
       vm.running = false;
       vm.interval = null;
+      vm.strength = 12;
+      vm.waitingRequests = 0;
 
       vm.timeoutBetweenRequests = 1000;
       vm.slider = {
         options: {
-          floor: 0,
+          floor: 1,
           ceil: 3000
         }
       };
@@ -46,19 +48,27 @@ angular
       };
 
       function makeRequest() {
-        $http.get('/api/quote')
+        vm.waitingRequests++;
+        $http.get('/api/quote?strength=' + vm.strength)
           .then(function successCallback(response) {
             vm.response = response;
+            var time = response.config.responseTimestamp - response.config.requestTimestamp;
 
             $log.debug("Response: " + response.toString());
             var newquote = {
               timestamp: new Date(),
               language: response.data.language,
               text: response.data.quote,
-              ipAddress: response.data.ipAddress
+              ipAddress: response.data.ipAddress,
+              ms: time
             };
 
+            vm.waitingRequests--;
             vm.quotes.unshift(newquote);
+
+            if (vm.quotes.length > 100) {
+              vm.quotes = vm.quotes.slice(0, 50);
+            }
           },
           function errorCallback(/* response */) {
             $log.debug("Unable to perform get request");
