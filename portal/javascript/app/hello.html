@@ -1,11 +1,16 @@
 <h2>$http Service Tutorial, v2</h2>
 
 <div>
-  Sleep between requests
+  Request interval, ms
   <rzslider
     rz-slider-model="$ctrl.timeoutBetweenRequests"
     rz-slider-options="$ctrl.slider.options"></rzslider>
 </div>
+
+<p>
+  Strength: <input type="number" data-ng-model="$ctrl.strength" min="3" max="31" /><br>
+  Waiting requests: {{$ctrl.waitingRequests}}<br>
+</p>
 
 <button ng-click="$ctrl.getRequest()">Test Rest</button>
 <button ng-click="$ctrl.toggleRequests()">
@@ -20,12 +25,13 @@
         <th>Language</th>
         <th>Quote</th>
         <th>IP Address</th>
+        <th>Response Time</th>
     </tr>
     </thead>
     <tbody>
-    <tr ng-repeat="quote in $ctrl.quotes">
+    <tr ng-repeat="quote in $ctrl.quotes | limitTo : 50">
         <td>
-            {{ quote.timestamp | date:"yyyy-MM-dd HH:mm:ss" }}
+            {{ quote.timestamp | date:"yyyy-MM-dd HH:mm:ss sss" }}
         </td>
         <td>
             {{ quote.language }}
@@ -35,6 +41,9 @@
         </td>
         <td>
           {{ quote.ipAddress }}
+        </td>
+        <td>
+          {{ quote.ms }}
         </td>
     </tr>
     </tbody>
