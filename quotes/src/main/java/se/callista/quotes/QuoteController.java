@@ -25,10 +25,12 @@ public class QuoteController {
     @Value("${server.port}")
     private String port;
 
-    Map<String, List<String>> quotes;
-	Random random = new Random();
-	String ipAddress = findMyIpAddress();
-	
+    private String host = findMyHostname();
+    private String ipAddress = findMyIpAddress();
+
+    private Map<String, List<String>> quotes;
+	private Random random = new Random();
+
 	public QuoteController() {
         quotes = new HashMap<>();
         quotes.put("en", Arrays.<String>asList("To be or not to be", "You, too, Brutus?", "Champagne should be cold, dry and free"));
@@ -47,7 +49,7 @@ public class QuoteController {
 
             List<String> list = quotes.get(language);
             String quoteText = list.get(random.nextInt(list.size()));
-            Quote quote = new Quote(quoteText, language, ipAddress + ":" + port);
+            Quote quote = new Quote(quoteText, language, host + "/" + ipAddress + ":" + port);
 
             LOG.debug("Will encrypt quote using BCrypt with strength = {} log rounds", strength);
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(strength);
@@ -68,11 +70,19 @@ public class QuoteController {
         return "Ouch!";
     }
 
+    private String findMyHostname() {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            return "unknown host name";
+        }
+    }
+
     private String findMyIpAddress() {
         try {
             return InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
+            return "unknown IP address";
         }
     }
 

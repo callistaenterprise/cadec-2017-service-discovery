@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+
+  quotes-service:
+    image: magnuslarsson/quotes:16
+    ports:
+      - "8080"

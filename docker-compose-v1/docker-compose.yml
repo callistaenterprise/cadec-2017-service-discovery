@@ -1,5 +1,5 @@
 quotes-service:
-  image: magnuslarsson/quotes:15
+  image: magnuslarsson/quotes:16
 
 #portal.js:
 #  image: magnuslarsson/portal.js:1

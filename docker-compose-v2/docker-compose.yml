@@ -3,7 +3,7 @@ version: '2'
 services:
 
   quotes-service:
-    image: magnuslarsson/quotes:15
+    image: magnuslarsson/quotes:16
 #    environment:
 #      - SPRING_CLOUD_DISCOVERY_ENABLED=false
 

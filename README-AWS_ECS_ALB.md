@@ -19,7 +19,11 @@ Following are the steps:
 1. Create application load balancer
 1. Create service and tie it to either classic load balancer or application load balancer. Load balancer needs to be created before. Service can expose the application endpoint either internally or externally.
 
-## Setings
+## CLI install
+
+See [install aws and ecs cli](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/get-set-up-for-amazon-ecs.html#install_ecs_cli).
+
+## Settings
 
 AWS_VPC_ID=vpc-da8d5abf
 
@@ -36,11 +40,13 @@ Lista nycklar:
 
 ...ger iam-user not authorized fel..
 
-Configure and create a cluster with three nodes:
+Configure (stored in `~/.ecs/config`) and create a cluster with three nodes:
 
+    AWS_ACCESS_KEY_ID=...
+    AWS_SECRET_ACCESS_KEY=...
     ecs-cli configure --region eu-west-1 --access-key $AWS_ACCESS_KEY_ID --secret-key $AWS_SECRET_ACCESS_KEY --cluster ecs-ml-cluster
 
-    ecs-cli up --keypair aws-key1 --capability-iam --size 3 --instance-type t2.small
+    ecs-cli up --keypair aws-key1 --capability-iam --size 1 --instance-type t2.micro
 
 Remove the cluster, if required:
 
@@ -50,16 +56,71 @@ Remove the cluster, if required:
 
 For now we need to open the following ports
 
-* 8761 (Discovery server, Eureka)
-* 8888 (Config Server)
-* 9999 (Local OAuth Server)
-* 8443 (API-gateway/Edge server)
+* 22 - SSH
+* 9090 - Portal
+
+### Update ECS Container Agent
+
+See [http://docs.aws.amazon.com/AmazonECS/latest/developerguide/agent-update-ecs-ami.html](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/agent-update-ecs-ami.html)
+
+Inside each instance:
+
+	ssh ...
+	[ec2-user]$ sudo yum update -y ecs-init
+	[ec2-user]$ sudo service docker restart 
+	[ec2-user]$ sudo start ecs
+	
+Using ´aws ecs´ CLI:
+
+	aws ecs update-container-agent --cluster ecs-ml-cluster --container-instance container_instance_id	
+### SSH access
+
+ssh -i "${private-key}" ec2-user@${external-ip}
 
 ## 3. Create EC2 container instances
-    
+
+### Instance health check
+
+...simply use /health and traffic port, deadeasy!
+
+### Tmp instance health check (before I found out the simple real solution :-)
+
+Install Apache to perform health checks
+
+	sudo yum -y install httpd    
+	sudo service httpd start
+	sudo vi /var/www/html/index.html
+	OK!
+	curl -i localhost
+	
+Ensure Apache starts on reboot
+	
+	sudo chkconfig httpd on
+	
 ## 4. Create task
+
+Create task definitions from docker-compose files:
+
+    cd aws-ecs/quotes
+    ecs-cli compose create
+
+    cd aws-ecs/portal
+    ecs-cli compose create
+
+
 
 ## 5. Create application load balancer
 
+Manuellt enligt, sedan testa med:
+
+	time curl -s ML-ALB-1373732302.eu-west-1.elb.amazonaws.com/api/quote?strength=4
+	curl -s ML-ALB-1373732302.eu-west-1.elb.amazonaws.com/api/quote?strength=4 | jq .ipAddress
+
+hostname = container id skall skilja vid round robin, ip adress kan vara samma...
+ 	
+ 
 ## 6. Create service 
+
+    cd docker-compose-v2
+    ecs-cli compose --file docker-compose.yml service up
       

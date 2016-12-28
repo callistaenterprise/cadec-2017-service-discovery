@@ -75,7 +75,7 @@ Build Docker image:
 
 Tag and push Docker image:
 	
-	version=15
+	version=16
 	docker tag magnuslarsson/quotes magnuslarsson/quotes:${version}
 	docker push magnuslarsson/quotes:${version}
 

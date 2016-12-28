@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+
+  portal-service:
+    image: magnuslarsson/portal:15
+    ports:
+      - "9090:9090"
