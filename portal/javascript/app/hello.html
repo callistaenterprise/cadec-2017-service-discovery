@@ -1,46 +1,74 @@
-<h2>Quotes Portal</h2>
+<div class="container">
+  <h2>Quotes Portal</h2>
 
-<div>
-  Request interval, ms
-  <rzslider
-    rz-slider-model="$ctrl.timeoutBetweenRequests"
-    rz-slider-options="$ctrl.slider.options"></rzslider>
-</div>
+  <div class="row margin-top">
+    <div class="col-sm-4 col-lg-5">
+      <div class="form-group">
+        <label> Request interval, ms</label>
+        <rzslider
+          rz-slider-model="$ctrl.timeoutBetweenRequests"
+          rz-slider-options="$ctrl.slider.options"></rzslider>
+      </div>
+    </div>
 
-<p>
-  Strength: <input type="number" data-ng-model="$ctrl.strength" min="3" max="31" /><br>
-  Waiting requests: {{$ctrl.waitingRequests}}<br>
-</p>
+    <div class="col-sm-4 col-md-3 col-lg-2">
+      <div class="form-group">
+        <label for="inputStrength">Strength</label>
+        <input type="number" data-ng-model="$ctrl.strength" min="3" max="31" class="form-control" id="inputStrength" placeholder="Strenght">
+      </div>
+    </div>
 
-<button ng-click="$ctrl.getRequest()">One Request</button>
-<button ng-click="$ctrl.toggleRequests()">
-  <span data-ng-if="!$ctrl.running">Start</span>
-  <span data-ng-if="$ctrl.running">Stop</span>
-</button>
+    <div class="col-sm-4  col-lg-3">
+      <label>Waiting requests</label><br>
+      {{$ctrl.waitingRequests}}<br>
+    </div>
+  </div>
 
-<table border="1" cellpadding="10">
+  <div class="row margin-top">
+    <div class="col-sm-12">
+      <button class="btn btn-default" ng-click="$ctrl.getRequest()">One Request</button>
+      <button
+        class="btn btn-success"
+        ng-click="$ctrl.toggleRequests()"
+        data-ng-if="!$ctrl.running"
+      >
+        Start
+      </button>
+
+      <button
+        class="btn btn-danger"
+        ng-click="$ctrl.toggleRequests()"
+        data-ng-if="$ctrl.running"
+      >
+        Stop
+      </button>
+    </div>
+  </div>
+
+  <table class="table table-striped margin-top">
     <thead>
-    <tr>
-        <th>Timestamp</th>
-        <th>Response Time</th>
-        <th>Quote</th>
-        <th>IP Address</th>
-    </tr>
+      <tr>
+          <th>Timestamp</th>
+          <th>Response Time</th>
+          <th>Quote</th>
+          <th>IP Address</th>
+      </tr>
     </thead>
     <tbody>
-    <tr ng-repeat="quote in $ctrl.quotes | limitTo : 50">
-        <td>
-            {{ quote.timestamp | date:"yyyy-MM-dd HH:mm:ss sss" }}
-        </td>
-        <td>
-          {{ quote.ms }}
-        </td>
-        <td>
-          {{ quote.text }}
-        </td>
-        <td>
-          {{ quote.ipAddress }}
-        </td>
-    </tr>
+      <tr ng-repeat="quote in $ctrl.quotes | limitTo : 50">
+          <td>
+              {{ quote.timestamp | date:"yyyy-MM-dd HH:mm:ss sss" }}
+          </td>
+          <td>
+            {{ quote.ms }}
+          </td>
+          <td>
+            {{ quote.text }}
+          </td>
+          <td>
+            {{ quote.ipAddress }}
+          </td>
+      </tr>
     </tbody>
-</table>
+  </table>
+</div>
