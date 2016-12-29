@@ -10,6 +10,7 @@ eureka:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
   instance:
     hostname: localhost
+    leaseRenewalIntervalInSeconds: 5
   server:
     # Disable self-preservation during development, see https://github.com/Netflix/eureka/wiki/Understanding-Eureka-Peer-to-Peer-Communication
     enableSelfPreservation: false
@@ -22,6 +23,10 @@ eureka:
     numberRegistrySyncRetries: 0
 
     response-cache-update-interval-ms: 1000
+
+    # Used in dev/demo to let go of EMERGENCY! messages in the Eureka console
+    renewalPercentThreshold: 0.49
+
   password: ${SECURITY_USER_PASSWORD:password}
 
 logging:
@@ -45,6 +50,8 @@ eureka:
       defaultZone: http://localhost:8762/eureka/
   instance:
     hostname: localhost
+  server:
+    enableSelfPreservation: true
 
 ---
 spring:
@@ -59,3 +66,5 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
   instance:
     hostname: localhost
+  server:
+    enableSelfPreservation: true

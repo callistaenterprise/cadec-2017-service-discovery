@@ -22,10 +22,9 @@
     <thead>
     <tr>
         <th>Timestamp</th>
-        <th>Language</th>
+        <th>Response Time</th>
         <th>Quote</th>
         <th>IP Address</th>
-        <th>Response Time</th>
     </tr>
     </thead>
     <tbody>
@@ -34,16 +33,13 @@
             {{ quote.timestamp | date:"yyyy-MM-dd HH:mm:ss sss" }}
         </td>
         <td>
-            {{ quote.language }}
+          {{ quote.ms }}
         </td>
         <td>
           {{ quote.text }}
         </td>
         <td>
           {{ quote.ipAddress }}
-        </td>
-        <td>
-          {{ quote.ms }}
         </td>
     </tr>
     </tbody>
