@@ -49,7 +49,7 @@ angular
 
       function makeRequest() {
         vm.waitingRequests++;
-        $http.get('/api/quote?strength=' + vm.strength)
+        $http.get('/api/quote?strength=' + vm.strength + "&_v=" + new Date().getTime())
           .then(function successCallback(response) {
             vm.response = response;
             var time = response.config.responseTimestamp - response.config.requestTimestamp;
