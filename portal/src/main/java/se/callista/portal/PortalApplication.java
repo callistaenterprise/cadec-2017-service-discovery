@@ -66,7 +66,6 @@ public class PortalApplication extends WebMvcConfigurerAdapter {
 		LOG.info("JVM DNS Cache TTL: {}", Security.getProperty("networkaddress.cache.ttl"));
 		LOG.info("JVM DNS Cache Negative TTL: {}", Security.getProperty("networkaddress.cache.negative.ttl"));
 		LOG.info("PortalApplication v{} started", verNo);
-		LOG.info("PortalApplication dummy log-message...");
 	}
 
 	@Bean

@@ -552,7 +552,11 @@ https://console.developers.google.com/apis/dashboard?project=k8s-labb-3&duration
 Tear down cluster:
 
 	gcloud container clusters delete my-cluster
-    
+	
+Remove remaining forwarding rules	
+
+	gcloud compute forwarding-rules list
+	gcloud compute forwarding-rules delete a0f144949cc0c11e6815142010a84000 --region europe-west1
 
 ## Kubernetes med user space proxy
 

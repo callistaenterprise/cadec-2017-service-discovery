@@ -74,8 +74,6 @@ public class PortalController {
 			LOG.debug("1.3. Log DNS entry after call");
 			printDNSCachedInfo(quoteServer);
 
-			LOG.info("1.4 PortalController dummy log-message...");
-
 		} catch (Exception e) {
 			LOG.warn("1.e Failed to get quote: " + e.getMessage());
 			throw new RuntimeException(e);
@@ -100,8 +98,6 @@ public class PortalController {
 
 			LOG.debug("2.3. Log DNS entry after call");
 			printDNSCachedInfo(quoteServer);
-
-			LOG.info("2.4 PortalController dummy log-message...");
 
 		} catch (Exception e) {
 			LOG.warn("2.e Failed to get quote: " + e.getMessage());

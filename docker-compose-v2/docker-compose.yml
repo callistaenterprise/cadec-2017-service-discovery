@@ -16,7 +16,7 @@ services:
 #      - "7070:80"
 
   portal-service:
-    image: magnuslarsson/portal:15
+    image: magnuslarsson/portal:16
     ports:
       - "9090:9090"
 #    environment:

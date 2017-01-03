@@ -38,7 +38,7 @@ Lista nycklar:
 
 	aws kms list-keys
 
-...ger iam-user not authorized fel..
+...ger iam-user "not authorized" fel..
 
 Configure (stored in `~/.ecs/config`) and create a cluster with three nodes:
 
@@ -111,16 +111,35 @@ Create task definitions from docker-compose files:
 
 ## 5. Create application load balancer
 
-Manuellt enligt, sedan testa med:
+Manuellt enligt ..., sedan testa med:
+
+**quote-service:**
 
 	time curl -s ML-ALB-1373732302.eu-west-1.elb.amazonaws.com/api/quote?strength=4
 	curl -s ML-ALB-1373732302.eu-west-1.elb.amazonaws.com/api/quote?strength=4 | jq .ipAddress
 
 hostname = container id skall skilja vid round robin, ip adress kan vara samma...
  	
- 
+**portal-service:** [http://ML-ALB-1373732302.eu-west-1.elb.amazonaws.com](http://ML-ALB-1373732302.eu-west-1.elb.amazonaws.com)	
+
 ## 6. Create service 
 
     cd docker-compose-v2
     ecs-cli compose --file docker-compose.yml service up
       
+## 7. Load tests
+
+16.48: 500 ms, strength: 12, queue: 64
+I instance 100% CPU...
+
+16.51: increaed to 600ms, queue increased...
+
+## 8. Putting ECS cluster to sleep
+
+### Set service min count to 0
+
+Update each ESC servcei and set Number of tasks to 0 (was 2 for portal and 3 for quotes)
+ 
+### Set node instance min count to 0
+
+Update the auto scaling group and edit details and set Min = 0 (was 2, one for each AZ)

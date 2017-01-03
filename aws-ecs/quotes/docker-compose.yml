@@ -4,5 +4,6 @@ services:
 
   quotes-service:
     image: magnuslarsson/quotes:16
+    mem_limit: 400000000
     ports:
       - "8080"

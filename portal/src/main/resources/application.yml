@@ -33,6 +33,12 @@ spring:
 
 quotes-service.ribbon.listOfServers: localhost:8080
 
+---
+# For usage with plain java -jar and hardcoded path to single quotes-serve
+spring:
+  profiles: aws-ecs
+
+quotes-service.ribbon.listOfServers: ML-ALB-1373732302.eu-west-1.elb.amazonaws.com
 
 ---
 # For usage with Eureka outside of Docker
