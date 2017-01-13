@@ -27,14 +27,14 @@ quotes-service.ribbon.listOfServers: quotes-service:8080
 
 
 ---
-# For usage with plain java -jar and hardcoded path to single quotes-serve
+# For DEV usage with plain java -jar and hardcoded path to single quotes-serve
 spring:
   profiles: no-discovery
 
 quotes-service.ribbon.listOfServers: localhost:8080
 
 ---
-# For usage with plain java -jar and hardcoded path to single quotes-serve
+# For usage with Amazon ECS and ALB
 spring:
   profiles: aws-ecs
 
@@ -47,7 +47,7 @@ spring:
 
 spring.cloud.discovery.enabled: true
 ribbon.eureka.enabled: true
-quotes-service.ribbon.listOfServers: quotes-service:8080
+#quotes-service.ribbon.listOfServers: quotes-service:8080
 
 
 # Interval to refresh the server list from the source

@@ -21,7 +21,7 @@ spec:
       containers:
       - name: portal
 #       FOR DEPLOY FROM DOCKERHUB
-#        image: portal:1
+#        image: portal:17
         image: magnuslarsson/portal.js:1
         env:
         - name: GET_HOSTS_FROM

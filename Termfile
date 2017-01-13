@@ -10,11 +10,10 @@ root:
 commands:
   discovery1:             java -Xms512m -Dspring.profiles.active=discovery1 -jar discovery/build/libs/*.jar
   discovery2:             java -Xms512m -Dspring.profiles.active=discovery2 -jar discovery/build/libs/*.jar
-  portal:     sleep 10 && java -Xms512m -Dspring.profiles.active=eureka     -jar portal/build/libs/*.jar
-  quotes1:    sleep 10 && java -Xms512m -Dspring.profiles.active=eureka     -jar quotes/build/libs/*.jar --server.port=8080
+  quotes1:                java -Xms512m -Dspring.profiles.active=eureka     -jar quotes/build/libs/*.jar --server.port=8080
   quotes2:    sleep 10 && java -Xms512m -Dspring.profiles.active=eureka     -jar quotes/build/libs/*.jar --server.port=8081
-  quotes3:    sleep 10 && java -Xms512m -Dspring.profiles.active=eureka     -jar quotes/build/libs/*.jar --server.port=8082
+  portal:     sleep 10 && java -Xms512m -Dspring.profiles.active=eureka     -jar portal/build/libs/*.jar --server.port=9090
 layout_type: row
 
 layout:
-  - [ discovery1, discovery2, portal, quotes1, quotes2, quotes3 ]
+  - [ discovery1, discovery2, quotes1, quotes2, portal ]

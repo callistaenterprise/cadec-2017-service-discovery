@@ -9,7 +9,7 @@ quotes-service:
 #    - quotes-service
 
 portal-service:
-  image: magnuslarsson/portal:16
+  image: magnuslarsson/portal:17
   ports:
     - "9090:9090"
   links:

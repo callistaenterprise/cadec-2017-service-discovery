@@ -110,14 +110,10 @@ Build the webapp under the src/main/resources/static - folder:
 
 	./gradlew clean build
 	docker build -t magnuslarsson/portal .
-
-Push latest Docker image:
-
-	# docker push magnuslarsson/portal
 	
 Tag and push Docker image:
 	
-	version=15
+	version=17
 	docker tag magnuslarsson/portal magnuslarsson/portal:${version}
 	docker push magnuslarsson/portal:${version}
 
@@ -262,7 +258,13 @@ In another terminal:
 
 ## Scale issues:
 
-	docker-compose up	docker-compose scale quotes-service=3	docker-compose exec portal nslookup quotes-service	curl -s localhost:9090/quote | jq .	docker run -it --rm --network dockercomposev2_default centos curl quotes-service:8080/api/quote | jq .
+	docker-compose up
+	docker-compose scale quotes-service=3
+	docker-compose exec portal nslookup quotes-service
+
+	curl -s localhost:9090/quote | jq .
+
+	docker run -it --rm --network dockercomposev2_default centos curl quotes-service:8080/api/quote | jq .
 
 
 Verify:
@@ -403,13 +405,17 @@ Verify cluster nodes:
 	
 	kubectl get nodes
 
+Get externa IP addresses:
+
+	kubectl get nodes \
+	  -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}'
 
 Deploy:
 
-	kubectl run quotes --image=magnuslarsson/quotes:15 --port=8080 
+	kubectl run quotes --image=magnuslarsson/quotes:16 --port=8080 
 	kubectl expose deployment quotes --type=LoadBalancer --name quotes-service
 
-	kubectl run portal --image=magnuslarsson/portal:15 --port=9090 
+	kubectl run portal --image=magnuslarsson/portal:17 --port=9090 
 	kubectl expose deployment portal --type=LoadBalancer --name portal-service
 
 	kubectl get deployment
@@ -812,9 +818,9 @@ network:
 
 quotes-service:
 	
-	# docker service create --replicas 1 --name quotes-service -p 8080:8080 --network my_network --update-delay 10s --update-parallelism 1 magnuslarsson/quotes:11
+	# docker service create --replicas 1 --name quotes-service -p 8080:8080 --network my_network --update-delay 10s --update-parallelism 1 magnuslarsson/quotes:16
 
-	docker service create --replicas 1 --name quotes-service -p 8080:8080 --network my_network magnuslarsson/quotes:12
+	docker service create --replicas 1 --name quotes-service -p 8080:8080 --network my_network magnuslarsson/quotes:16
 
 	docker service ls
 	docker service ps quotes-service
@@ -833,9 +839,9 @@ quotes-service:
 
 portal:
 
-	# docker service create --replicas 1 --name portal -p 9090:9090 --network my_network --update-delay 10s --update-parallelism 1 magnuslarsson/portal:11
+	# docker service create --replicas 1 --name portal -p 9090:9090 --network my_network --update-delay 10s --update-parallelism 1 magnuslarsson/portal:17
 
-	docker service create --replicas 1 --name portal -p 9090:9090 --network my_network magnuslarsson/portal:12
+	docker service create --replicas 1 --name portal -p 9090:9090 --network my_network magnuslarsson/portal:17
 
 	curl -s $(docker-machine ip swarm-manager-1):9090/api/quote | jq
 	curl -s $(docker-machine ip swarm-worker-1):9090/api/quote | jq
