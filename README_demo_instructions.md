@@ -22,23 +22,7 @@
 
 1. Arrangera terminal fönster och tre + 1 web läsare fönster
 
-# Spring Cloud and Netflix Eureka
-
-In folder /
-
-	termrc start  Eureka Web: [http://localhost:8761](http://localhost:8761)  Open portal web app: [http://localhost:9090](http://localhost:9090)
-
-# docker-compose
-
-In folder /docker-compose-v2
-	
-
-	docker-compose up	docker-compose scale quotes-service=2	docker-compose ps	docker-compose exec portal-service nslookup quotes-service
-Open portal web app: [http://localhost:9090](http://localhost:9090)
-
-# Docker Swarm
-
-## PREPARE
+## PREPARE SWARM
 
 Start swarm:
 
@@ -50,40 +34,7 @@ Direct docker commands to a manager in the cluster:
 
 Open visualizer in a web browser: [http://192.168.99.100:8000](http://192.168.99.100:8000)
 
-
-### DEMO INSTRUCTIONS
-
-**Setup**
-	
-	docker network create --driver overlay my_network
-	docker service create --replicas 3 --name quotes-service -p 8080:8080 --network my_network magnuslarsson/quotes:16
-	docker service create --replicas 1 --name portal -p 9090:9090 --network my_network magnuslarsson/portal:17
-
-**Start requests in Portal**
-
-[http://192.168.99.100:9090](http://192.168.99.100:9090)
-
-**Kill a container**
-
-	docker $(docker-machine config swarm-worker-1/2) kill 
-	
-**Kill a node**
-
-Verify that no browser use the node to be killed!!!
-
-	docker-machine stop swarm-worker-1/2	
-
-### Teardown
-
-	docker service rm quotes-service
-	docker service rm portal
-	docker network rm my_network
-
-	docker-machine stop swarm-manager-1 swarm-worker-1 swarm-worker-2
-	
-	
-	
-# KUBERNETES
+## PREPARE KUBERNETES
 
 Setup cluster with auto scaling of nodes
 
@@ -101,7 +52,7 @@ Setup cluster with auto scaling of nodes
 	kubectl cluster-info	
 	grep password /Users/magnus/.kube/config
 
-Setup serviuces with auto scaling of quotes pods:
+Setup services with auto scaling of quotes pods:
 
 	kubectl run quotes --image=magnuslarsson/quotes:16 --port=8080 
 	kubectl expose deployment quotes --type=LoadBalancer --name quotes-service
@@ -134,6 +85,53 @@ Verify IP addresses
 	Name:      quotes-service
 	Address 1: 10.0.17.114 quotes-service.default.svc.cluster.local
 
+# Spring Cloud and Netflix Eureka
+
+In folder /
+
+	termrc start  Eureka Web: [http://localhost:8761](http://localhost:8761)  Open portal web app: [http://localhost:9090](http://localhost:9090)
+
+# docker-compose
+
+In folder /docker-compose-v2
+	
+
+	docker-compose up	docker-compose scale quotes-service=2	docker-compose ps	docker-compose exec portal-service nslookup quotes-service
+Open portal web app: [http://localhost:9090](http://localhost:9090)
+
+# Docker Swarm
+
+**Setup**
+	
+	docker network create --driver overlay my_network
+	docker service create --replicas 3 --name quotes-service -p 8080:8080 --network my_network magnuslarsson/quotes:16
+	docker service create --replicas 1 --name portal -p 9090:9090 --network my_network magnuslarsson/portal:17
+
+**Start requests in Portal**
+
+[http://192.168.99.100:9090](http://192.168.99.100:9090)
+
+**Kill a container**
+
+	docker $(docker-machine config swarm-worker-1/2) kill 
+	
+**Kill a node**
+
+Verify that no browser use the node to be killed!!!
+
+	docker-machine stop swarm-worker-1/2	
+
+### Teardown
+
+	docker service rm quotes-service
+	docker service rm portal
+	docker network rm my_network
+
+	docker-machine stop swarm-manager-1 swarm-worker-1 swarm-worker-2
+	
+	
+	
+# KUBERNETES
 
 
 Open portal in web browser using its external ip: [http://146.148.16.15:9090](http://146.148.16.15:9090)
