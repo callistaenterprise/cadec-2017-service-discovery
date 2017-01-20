@@ -2,10 +2,10 @@
 
 	cd /Users/magnus/Documents/projects/cadec-2017/service-discovery/git/cadec-2017-service-discovery
 
-1. One terminal for Netflix Eureka
-1. Two terminals for docker-compose
-
-		cd docker-compose-v2
+1. Netflix
+	1. One terminal for Netflix Eureka
+	2. Onw broweser for Eureka 
+	3. One browser for portal
 
 1. K8S 
 	1. Monitor hpa
@@ -20,19 +20,27 @@
 
 			while true; do o="$(kubectl get nodes)"; clear; echo "$o"; sleep 3; done
 
-1. Arrangera terminal fönster och tre + 1 web läsare fönster
+	1. Arrangera terminal fönster och tre web läsare fönster
+
+1. Docker-Compose
+
+	1. Two terminals for docker-compose
+	
+			cd docker-compose-v2
 
 ## PREPARE SWARM
 
-Start swarm:
+1. Start swarm:
 
-	docker-machine start swarm-manager-1 swarm-worker-1 swarm-worker-2
+		docker-machine start swarm-manager-1 swarm-worker-1 swarm-worker-2
 
-Direct docker commands to a manager in the cluster:
+1. Direct docker commands to a manager in the cluster:
 	
-	eval $(docker-machine env swarm-manager-1)    
+		eval $(docker-machine env swarm-manager-1)    
 
-Open visualizer in a web browser: [http://192.168.99.100:8000](http://192.168.99.100:8000)
+1. Open visualizer in a web browser: [http://192.168.99.100:8000](http://192.168.99.100:8000)
+
+1. Open portal in web browser
 
 ## PREPARE KUBERNETES
 
