@@ -518,6 +518,8 @@ Expected sample output:
 
 Destroy cluster:
 
+
+	export KUBE_GCE_ZONE=europe-west1-b
 	./cluster/kube-down.sh
 	
 ## Google Cloud Platform - Container Engine

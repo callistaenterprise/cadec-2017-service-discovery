@@ -135,6 +135,8 @@ Verify that no browser use the node to be killed!!!
 	docker service rm portal
 	docker network rm my_network
 
+Also stop the nodes:
+
 	docker-machine stop swarm-manager-1 swarm-worker-1 swarm-worker-2
 	
 	

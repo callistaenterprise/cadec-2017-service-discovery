@@ -138,7 +138,7 @@ I instance 100% CPU...
 
 ### Set service min count to 0
 
-Update each ESC servcei and set Number of tasks to 0 (was 2 for portal and 3 for quotes)
+Update each ESC service and set number of tasks to 0 (was 2 for portal and 3 for quotes)
  
 ### Set node instance min count to 0
 
