@@ -1,0 +1,6 @@
+FROM iron/base
+EXPOSE 8080
+
+ADD quotes-linux-amd64 /
+
+ENTRYPOINT ["./quotes-linux-amd64"]
