@@ -706,6 +706,23 @@ Create nodes:
       --virtualbox-disk-size 20000 \
       swarm-worker-2
       
+Lock IP addresses:
+      
+    docker-machine-ipconfig static swarm-manager-1 192.168.99.100
+    docker-machine-ipconfig static swarm-worker-1  192.168.99.101
+    docker-machine-ipconfig static swarm-worker-2  192.168.99.102
+
+Enable experimental features
+
+On each node:
+
+    docker-machine ssh swarm-manager-1/swarm-worker-1/swarm-worker-2
+    sudo echo '{"experimental":true}'| sudo tee /etc/docker/daemon.json
+
+Restart all nodes to make the change take effect:
+
+    docker-machine restart swarm-manager-1 swarm-worker-1 swarm-worker-2
+
 Create cluster:      
 
 **FIRST MANUAL VERSION**
@@ -728,12 +745,12 @@ Create cluster:
 	
 	docker-machine ssh swarm-worker-1 "docker swarm join --token ${WorkerToken} ${ManagerIP}:2377"
 	docker-machine ssh swarm-worker-2 "docker swarm join --token ${WorkerToken} ${ManagerIP}:2377"
-	
+		
 Direct docker commands to a manager in the cluster:
 	
 	eval $(docker-machine env swarm-manager-1)    
 
-Or a wroker:
+Or a worker:
 
 	eval $(docker-machine env swarm-worker-1)    
 	eval $(docker-machine env swarm-worker-2)    

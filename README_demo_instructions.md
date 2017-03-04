@@ -183,3 +183,8 @@ Expected sample output:
 
 **portal-service:** [http://ML-ALB-1373732302.eu-west-1.elb.amazonaws.com](http://ML-ALB-1373732302.eu-west-1.elb.amazonaws.com)
 	
+# Docker Swarm rolling upgrade
+
+	docker service update --image magnuslarsson/quotes:go-22 quotes-service
+	docker service update --image magnuslarsson/quotes:16    quotes-service
+	  
