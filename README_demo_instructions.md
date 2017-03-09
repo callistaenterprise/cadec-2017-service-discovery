@@ -2,31 +2,33 @@
 
 	cd /Users/magnus/Documents/projects/cadec-2017/service-discovery/git/cadec-2017-service-discovery
 
-1. Netflix
-	1. One terminal for Netflix Eureka
-	2. Onw broweser for Eureka 
-	3. One browser for portal
+## PREPARE Netflix
 
-1. K8S 
-	1. Monitor hpa
+1. One terminal for Netflix Eureka
+2. One browser for Eureka 
+3. One browser for portal
 
-			while true; do o="$(kubectl get hpa)"; clear; echo "$o"; sleep 3; done
+## PREPARE K8S 
 
-	1. Monitor pods
+1. Monitor hpa
 
-			while true; do o="$(kubectl get pods)"; clear; echo "$o"; sleep 3; done
+		while true; do o="$(kubectl get hpa)"; clear; echo "$o"; sleep 3; done
 
-	1. Monitor nodes
+1. Monitor pods
 
-			while true; do o="$(kubectl get nodes)"; clear; echo "$o"; sleep 3; done
+		while true; do o="$(kubectl get pods)"; clear; echo "$o"; sleep 3; done
 
-	1. Arrangera terminal fönster och tre web läsare fönster
+1. Monitor nodes
 
-1. Docker-Compose
+		while true; do o="$(kubectl get nodes)"; clear; echo "$o"; sleep 3; done
 
-	1. Two terminals for docker-compose
+1. Arrangera terminal fönster och tre web läsare fönster
+
+## PREPARE Docker-Compose
+
+1. Two terminals for docker-compose
 	
-			cd docker-compose-v2
+		cd docker-compose-v2
 
 ## PREPARE SWARM
 
@@ -109,18 +111,31 @@ Open portal web app: [http://localhost:9090](http://localhost:9090)
 
 # Docker Swarm
 
+	eval $(docker-machine env swarm-manager-1)
+
+**Check**
+
+	docker network ls
+	docker service ls
+
 **Setup**
 	
 	docker network create --driver overlay my_network
 	docker service create --replicas 3 --name quotes-service -p 8080:8080 --network my_network magnuslarsson/quotes:16
 	docker service create --replicas 1 --name portal -p 9090:9090 --network my_network magnuslarsson/portal:17
 
+	docker service logs -f portal
+	
 **Start requests in Portal**
 
 [http://192.168.99.100:9090](http://192.168.99.100:9090)
 
 **Kill a container**
 
+	eval $(docker-machine env swarm-manager-1)
+	eval $(docker-machine env swarm-worker-1/2)
+	docker kill TAB
+	
 	docker $(docker-machine config swarm-worker-1/2) kill 
 	
 **Kill a node**
@@ -134,6 +149,8 @@ Verify that no browser use the node to be killed!!!
 	docker service rm quotes-service
 	docker service rm portal
 	docker network rm my_network
+
+	docker-machine start swarm-worker-1/	
 
 Also stop the nodes:
 
@@ -187,4 +204,6 @@ Expected sample output:
 
 	docker service update --image magnuslarsson/quotes:go-22 quotes-service
 	docker service update --image magnuslarsson/quotes:16    quotes-service
+	docker service scale quotes-service=10
+	
 	  
