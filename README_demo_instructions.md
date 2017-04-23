@@ -117,7 +117,10 @@ Open portal web app: [http://localhost:9090](http://localhost:9090)
 
 # Docker Swarm
 
+**Init**
+
 	eval $(docker-machine env swarm-manager-1)
+	docker info
 
 **Check**
 
@@ -138,8 +141,12 @@ Open portal web app: [http://localhost:9090](http://localhost:9090)
 ## Docker Swarm rolling upgrade
 
 	docker service update --image magnuslarsson/quotes:go-22 quotes-service
-	docker service update --image magnuslarsson/quotes:16    quotes-service
 	docker service scale quotes-service=10
+
+Rolling back: 
+
+	docker service scale quotes-service=3
+	docker service update --image magnuslarsson/quotes:16    quotes-service
 
 ## Demo steps
 	
