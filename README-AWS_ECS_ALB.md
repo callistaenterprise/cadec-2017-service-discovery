@@ -142,4 +142,4 @@ Update each ESC service and set number of tasks to 0 (was 2 for portal and 3 for
  
 ### Set node instance min count to 0
 
-Update the auto scaling group and edit details and set Min = 0 (was 2, one for each AZ)
+Update the auto scaling group and edit details and set Desired = Min = 0 (was 2, one for each AZ)

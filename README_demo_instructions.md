@@ -1,7 +1,11 @@
 # PREPARE
 
-	cd /Users/magnus/Documents/projects/cadec-2017/service-discovery/git/cadec-2017-service-discovery
+	cd ~/Documents/projects/cadec-2017/service-discovery/git/cadec-2017-service-discovery
 
+For all terminal windows:
+
+	export PS1="$ "
+	
 ## PREPARE Netflix
 
 1. One terminal for Netflix Eureka
@@ -48,6 +52,8 @@
 
 Setup cluster with auto scaling of nodes
 
+	cd ~/Documents/projects/cadec-2017/service-discovery
+	
 	export KUBE_GCE_ZONE=europe-west1-b
 	export NODE_SIZE=n1-standard-1
 	export NUM_NODES=1
@@ -125,6 +131,17 @@ Open portal web app: [http://localhost:9090](http://localhost:9090)
 	docker service create --replicas 1 --name portal -p 9090:9090 --network my_network magnuslarsson/portal:17
 
 	docker service logs -f portal
+	 
+	.
+	
+
+## Docker Swarm rolling upgrade
+
+	docker service update --image magnuslarsson/quotes:go-22 quotes-service
+	docker service update --image magnuslarsson/quotes:16    quotes-service
+	docker service scale quotes-service=10
+
+## Demo steps
 	
 **Start requests in Portal**
 
@@ -144,13 +161,16 @@ Verify that no browser use the node to be killed!!!
 
 	docker-machine stop swarm-worker-1/2	
 
+	docker-machine start swarm-worker-1/2
+
+
 ### Teardown
 
 	docker service rm quotes-service
 	docker service rm portal
 	docker network rm my_network
 
-	docker-machine start swarm-worker-1/	
+	docker-machine start swarm-worker-1/2
 
 Also stop the nodes:
 
@@ -196,14 +216,19 @@ Expected sample output:
 	kubernetes-minion-group-l6kv   NotReady                   6s
 	kubernetes-minion-group-xq6d   Ready                      18m
 
+## Shut down Kubernetes
+
+	export KUBE_GCE_ZONE=europe-west1-b
+	# export NODE_SIZE=n1-standard-1
+	# export NUM_NODES=1
+	# export KUBE_ENABLE_CLUSTER_AUTOSCALER=true
+	# export KUBE_AUTOSCALER_MIN_NODES=1
+	# export KUBE_AUTOSCALER_MAX_NODES=5
+	./cluster/kube-down.sh
+
 # AMAZON AWS/ALB
 
 **portal-service:** [http://ML-ALB-1373732302.eu-west-1.elb.amazonaws.com](http://ML-ALB-1373732302.eu-west-1.elb.amazonaws.com)
 	
-# Docker Swarm rolling upgrade
-
-	docker service update --image magnuslarsson/quotes:go-22 quotes-service
-	docker service update --image magnuslarsson/quotes:16    quotes-service
-	docker service scale quotes-service=10
 	
 	  
