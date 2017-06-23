@@ -14,11 +14,13 @@ For all terminal windows:
 
 ## PREPARE Spring Cloud, ELK, Zipkin and Prometheus
 
-		cd performancetest
-		docker compose up -d
+		# cd performancetest
+		cd /Users/magnus/Documents/projects/AZ/IntelliPharma/github/prometheus
+		docker-compose up -d
 
-		cd blog-microservices
-		docker compose up -d
+		cd /Users/magnus/Documents/projects/blogs/git/blog-microservices
+		. ./setup-env.sh
+		docker-compose up -d
 
 ## PREPARE SWARM
 
@@ -103,7 +105,7 @@ Verify IP addresses
 
 		while true; do o="$(kubectl get nodes)"; clear; echo "$o"; sleep 3; done
 
-1. Command prompt för at tkunna köra t ex `kubectl get svc `
+1. Command prompt för att kunna köra t ex `kubectl get svc `
 
 1. Arrangera terminal fönster och tre web läsare fönster, sänk tid till 40 ms
 
@@ -119,12 +121,12 @@ In folder /
 2. några single anrop för att påvisa round robin
 3. starta kontinuerliga anrop
 4. stoppa quote service 1
-5. inga fel i protal, men bara anrop till service #2
+5. inga fel i portal, men bara anrop till service #2
 6. visa eureka igen
 
 # Spring Cloud, ELK, Zipkin and Prometheus
 
-Eureka, test (Edge, Oauth), scale, load balance, Elastic, Zipkin, config server, circuit breaker, Prometheus1. Kolla i Eureka1. test-them-all och oauth security			. ./test-all.sh		curl -ks https://localhost:443/api/product/123 -H "Authorization: Bearer $TOKEN" | jq .1. Logstash & zipkin	Note: Kibana fields: level, corr-service, corr-id, message, host		curl -ks https://localhost:443/api/product/123123 -H "Authorization: Bearer $TOKEN" | jq .	Sök I zipkin: `http.path=/api/product/123123`1. Scale
+Eureka, test (Edge, Oauth), scale, load balance, Elastic, Zipkin, config server, circuit breaker, Prometheus1. Kolla i Eureka1. test-them-all och oauth security			. ./test-all.sh		curl -ks https://localhost:443/api/product/123 -H "Authorization: Bearer $TOKEN" | jq .1. Logstash & zipkin	Note: Kibana fields: level, corr-service, corr-id, message, syslog_hostname		curl -ks https://localhost:443/api/product/123123 -H "Authorization: Bearer $TOKEN" | jq .	Sök I zipkin: `http.path=/api/product/123123`1. Scale
 		docker-compose scale rec=2	
 	Eureka + returnerad IP adress efter curl-anrop	Sök i Kibana på:	sök på 123123 + review service1. Kolla i Hystrix		vi ../blog-microservices-config/review-service.yml	
 		time curl -ks https://localhost:443/api/product/123 -H "Authorization: Bearer $TOKEN" | jq .1. Prometheus		. ./test-all.sh		while true; do clear; time curl -ks https://localhost:443/api/product/123 -H "Authorization: Bearer $TOKEN" | jq .; sleep 1; done	Increase CPU usage		vi ../blog-microservices-config/review-service.yml

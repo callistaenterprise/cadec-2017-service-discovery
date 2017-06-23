@@ -127,16 +127,42 @@ Open portal web app: [http://localhost:9090](http://localhost:9090)
 	docker network ls
 	docker service ls
 
-**Setup**
+## more Swarm demo steps
+
+**Start requests in Portal**
+
+[http://192.168.99.100:9090](http://192.168.99.100:9090)
+
+**Kill a container**
+
+	eval $(docker-machine env swarm-manager-1)
+	eval $(docker-machine env swarm-worker-1)
+	eval $(docker-machine env swarm-worker-2)
+	docker kill TAB
+	
+	docker $(docker-machine config swarm-worker-1) kill 
+	docker $(docker-machine config swarm-worker-2) kill 
+
+## Swarm - Demo steps
 	
 	docker network create --driver overlay my_network
-	docker service create --replicas 3 --name quotes-service -p 8080:8080 --network my_network magnuslarsson/quotes:16
 	docker service create --replicas 1 --name portal -p 9090:9090 --network my_network magnuslarsson/portal:17
+	docker service create --replicas 3 --name quotes-service -p 8080:8080 --network my_network magnuslarsson/quotes:16
 
 	docker service logs -f portal
 	 
 	.
-	
+		
+## Kill a node
+
+Verify that no browser use the node to be killed!!!
+
+	docker-machine stop swarm-worker-1
+	docker-machine stop swarm-worker-2
+
+	docker-machine start swarm-worker-2
+	docker-machine start swarm-worker-2
+
 
 ## Docker Swarm rolling upgrade
 
@@ -148,36 +174,14 @@ Rolling back:
 	docker service scale quotes-service=3
 	docker service update --image magnuslarsson/quotes:16    quotes-service
 
-## Demo steps
-	
-**Start requests in Portal**
-
-[http://192.168.99.100:9090](http://192.168.99.100:9090)
-
-**Kill a container**
-
-	eval $(docker-machine env swarm-manager-1)
-	eval $(docker-machine env swarm-worker-1/2)
-	docker kill TAB
-	
-	docker $(docker-machine config swarm-worker-1/2) kill 
-	
-**Kill a node**
-
-Verify that no browser use the node to be killed!!!
-
-	docker-machine stop swarm-worker-1/2	
-
-	docker-machine start swarm-worker-1/2
-
-
-### Teardown
+## Teardown
 
 	docker service rm quotes-service
 	docker service rm portal
 	docker network rm my_network
 
-	docker-machine start swarm-worker-1/2
+	docker-machine start swarm-worker-1
+	docker-machine start swarm-worker-2
 
 Also stop the nodes:
 
