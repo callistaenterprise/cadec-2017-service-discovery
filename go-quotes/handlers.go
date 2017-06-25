@@ -32,8 +32,19 @@ func GetQuote(w http.ResponseWriter, r *http.Request) {
 	quote := quotes[idx]
 	quoteObject := Quote{hostname + "/" + addr, quote, "EN"}
 
-        // If found, marshal into JSON, write headers and content
+	// If found, marshal into JSON, write headers and content
 	data, _ := json.Marshal(quoteObject)
+
+	fmt.Printf("ML Return string %v\n", string(data))
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Length", strconv.Itoa(len(data)))
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+}
+
+func GetHealth(w http.ResponseWriter, r *http.Request) {
+
+	data := []byte("{\"status\":\"UP\"}")
 
 	fmt.Printf("ML Return string %v\n", string(data))
 	w.Header().Set("Content-Type", "application/json")

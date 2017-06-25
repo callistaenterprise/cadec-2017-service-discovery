@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+
+  quotes-service:
+    build: quotes
+    ports:
+      - "8080:8080"
+
+  portal-service:
+    build: portal
+    ports:
+      - "9090:9090"

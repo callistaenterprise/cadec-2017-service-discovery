@@ -17,6 +17,13 @@ type Routes []Route
 var routes = Routes{
 
         Route{
+                "Health",    // Name
+                "GET",         // HTTP method
+                "/health",  // Route pattern
+                GetHealth,
+        },
+
+        Route{
                 "GetQuote",    // Name
                 "GET",         // HTTP method
                 "/api/quote",  // Route pattern

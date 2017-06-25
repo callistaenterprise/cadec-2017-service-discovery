@@ -1,0 +1,47 @@
+version: '3'
+
+networks:
+
+  my-network:
+    driver: bridge
+
+
+services:
+
+  quotes-service:
+    image:  magnuslarsson/quotes:16
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-sq", "http://localhost:8080/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    deploy:
+      replicas: 3
+      resources:
+        reservations:
+          cpus: '0.2'
+          memory: 128M
+        limits:
+          cpus: '2.0'
+          memory: 512M
+
+  portal-service:
+    image:  magnuslarsson/portal:17
+    ports:
+      - "9090:9090"
+    healthcheck:
+      test: ["CMD", "wget", "-sq", "http://localhost:9090/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+        limits:
+          cpus: '2.0'
+          memory: 512M
