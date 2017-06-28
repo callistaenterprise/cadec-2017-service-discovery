@@ -4,7 +4,7 @@
 
 For all terminal windows:
 
-	export PS1="$ "
+	export PS1="Nnn $ "
 	
 ## PREPARE Local Dev
 
@@ -19,12 +19,14 @@ Build binaries:
 
     cd quotes && ./gradlew build && cd -
     cd portal && ./gradlew build && cd -
+
+1. One browser tab with http://127.0.0.1:9090 
+1. One browser tab with http://127.0.0.1:8080/api/quote 
+    
     
 ## PREPARE Docker Machine in AWS
 
-Create machine:
-
-These environment variables can typically be set in the startup script `~.bash_profile`
+These environment variables can typically be set in the startup script `~/.bash_profile`
 
     export AWS_ACCESS_KEY=...
     export AWS_SECRET_KEY=...
@@ -32,7 +34,7 @@ These environment variables can typically be set in the startup script `~.bash_p
 
     env | grep AWS
 
-## Create a Docker host in AWS
+Create a Docker host in AWS
 
     docker-machine -D create \
       --driver amazonec2 \
@@ -44,12 +46,7 @@ These environment variables can typically be set in the startup script `~.bash_p
       --amazonec2-instance-type "t2.large" \
       aws-test-1
 	
-	eval "$(docker-machine env aws-test-1)"
-
-	docker info | grep provider
-	> provider=amazonec2
-
-## Configure the firewall in the AWS security group
+### Configure the firewall in the AWS security group
 
 A Docker host use by default a security group named `docker-machine`. 
 Use the [AWS Management Console](https://eu-west-1.console.aws.amazon.com/ec2/v2/home?region=eu-west-1#SecurityGroups) to determine its id.
@@ -62,6 +59,19 @@ We need to open up the TCP ports 8080 and 9090
     ec2-authorize -p 8080 -P TCP $AWS_SECURITY_GROUP_ID --region eu-west-1
     ec2-authorize -p 9090 -P TCP $AWS_SECURITY_GROUP_ID --region eu-west-1
 
+	
+### Open Web Browser 
+	
+	eval "$(docker-machine env aws-test-1)"
+
+	docker info | grep provider
+	> provider=amazonec2
+
+	eval $(docker-machine env aws-test-1) 
+
+samma som  ovan fast mot AWS IP-Adr
+
+	docker-machine ls
 	    
 ## PREPARE SWARM
 
@@ -191,6 +201,10 @@ samma som  ovan fast mot AWS IP-Adr
 
 	docker-machine ls
 
+Kika in i AWS ECS instansen:
+
+	docker-machine ssh aws-test-1
+	
 # Docker Swarm - OLD
 
 **Init**
