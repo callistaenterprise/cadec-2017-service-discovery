@@ -83,3 +83,28 @@ RawContentLength  : 222
 REM MULTI-ARCH VERSION
 
 manifest-tool-windows-amd64.exe  --docker-cfg "\Users\magnus\.docker\config.json" push from-spec manifest-quotes-multiarch.yml
+
+./manifest-tool-darwin-amd64.dms --username=magnuslarsson --password=xxx push from-spec manifest-quotes-multiarch.yml
+
+docker run mplatform/mquery magnuslarsson/quotes:24-go
+Image: magnuslarsson/quotes:24-go
+ * Manifest List: Yes
+ * Supported platforms:
+   - linux/amd64
+   - windows/amd64:10.0.14393.1944
+   
+docker run -d -p 8080:8080 --name quotes magnuslarsson/quotes:24-go
+
+
+docker run -d -p 8080:8080 --name quotes magnuslarsson/quotes:24-go
+Unable to find image 'magnuslarsson/quotes:24-go' locally
+24-go: Pulling from magnuslarsson/quotes
+6cbedf1a098b: Pull complete
+Digest: sha256:7f05a93194d9e790ce2d4bce6576abe32e0ce560844476bf2373163af18d0d4a
+Status: Downloaded newer image for magnuslarsson/quotes:24-go
+655a29c9fd094e3e180b60fec78b7c9bf0d2dcc0e52d18fa86ae6660dfdbef
+
+curl localhost:8080/api/quote
+{"hardwareArchitecture":"amd64","operatingSystem":"linux","ipAddress":"655a29c9fd09/172.17.0.2","quote":"In Go, the code does exactly what it says on the page.","language":"EN"}
+
+   
