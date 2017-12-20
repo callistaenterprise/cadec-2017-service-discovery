@@ -93,8 +93,8 @@ Image: magnuslarsson/quotes:24-go
    - linux/amd64
    - windows/amd64:10.0.14393.1944
    
-docker run -d -p 8080:8080 --name quotes magnuslarsson/quotes:24-go
-
+Docker for Mac
+==============
 
 docker run -d -p 8080:8080 --name quotes magnuslarsson/quotes:24-go
 Unable to find image 'magnuslarsson/quotes:24-go' locally
@@ -107,4 +107,31 @@ Status: Downloaded newer image for magnuslarsson/quotes:24-go
 curl localhost:8080/api/quote
 {"hardwareArchitecture":"amd64","operatingSystem":"linux","ipAddress":"655a29c9fd09/172.17.0.2","quote":"In Go, the code does exactly what it says on the page.","language":"EN"}
 
-   
+Docker for Windows - Windows Containers
+=======================================
+
+>docker run -d -p 8080:8080 --name quotes magnuslarsson/quotes:24-go
+Unable to find image 'magnuslarsson/quotes:24-go' locally
+24-go: Pulling from magnuslarsson/quotes
+Digest: sha256:7f05a93194d9e790ce2d4bce6576abe32e0ce560844476bf2373163af18d0d4a
+Status: Downloaded newer image for magnuslarsson/quotes:24-go
+6271c339b5a8d847eb3f4cfb55006900f81ae161b8654ee28e6971db883773c2
+
+~$ curl 192.168.1.224:8080/api/quote
+{"hardwareArchitecture":"amd64","operatingSystem":"windows","ipAddress":"6271c339b5a8/fe80::c8b:838f:ab07:6790%Ethernet172.24.237.142","quote":"In Go, the code does exactly what it says on the page.","language":"EN"}
+
+
+
+Docker for Windows - Linux Containers
+=====================================
+
+docker run -d -p 8080:8080 --name quotes magnuslarsson/quotes:24-go
+Unable to find image 'magnuslarsson/quotes:24-go' locally
+24-go: Pulling from magnuslarsson/quotes
+Digest: sha256:7f05a93194d9e790ce2d4bce6576abe32e0ce560844476bf2373163af18d0d4a
+Status: Downloaded newer image for magnuslarsson/quotes:24-go
+0fe5514a7d70e04581bf37e31109a779ddbd3623a91ba801a0a8f018242da31e
+
+$ curl localhost:8080/api/quote
+{"hardwareArchitecture":"amd64","operatingSystem":"linux","ipAddress":"0fe5514a7d70/172.17.0.2","quote":"I like a lot of the design decisions they made in the [Go] language. Basically, I like all of them.","language":"EN"}
+
