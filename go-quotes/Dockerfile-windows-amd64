@@ -1,0 +1,6 @@
+FROM microsoft/nanoserver
+EXPOSE 8080
+
+ADD quotes-windows-amd64.exe /
+
+ENTRYPOINT ["./quotes-windows-amd64.exe"]

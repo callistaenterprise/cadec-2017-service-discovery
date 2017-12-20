@@ -1,0 +1,9 @@
+FROM openjdk:8u151-jdk-nanoserver-sac2016
+
+MAINTAINER Magnus Larsson <magnus.larsson.ml@gmail.com>
+
+EXPOSE 8080
+
+ADD ./build/libs/*.jar app.jar
+
+ENTRYPOINT ["java", "-jar","/app.jar"]

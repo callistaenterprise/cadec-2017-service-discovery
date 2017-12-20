@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"os"
 	"net"
+	"runtime"
 )
 
 var  quotes = [...]string{
@@ -30,7 +31,7 @@ func GetQuote(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Will pick no# %v of the %v quotes\n", idx, len(quotes))
 	quote := quotes[idx]
-	quoteObject := Quote{hostname + "/" + addr, quote, "EN"}
+	quoteObject := Quote{runtime.GOARCH, runtime.GOOS, hostname + "/" + addr, quote, "EN"}
 
 	// If found, marshal into JSON, write headers and content
 	data, _ := json.Marshal(quoteObject)

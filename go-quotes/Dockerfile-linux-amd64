@@ -1,4 +1,4 @@
-FROM iron/base
+FROM scratch
 EXPOSE 8080
 
 ADD quotes-linux-amd64 /
