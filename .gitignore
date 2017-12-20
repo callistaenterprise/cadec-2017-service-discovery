@@ -16,3 +16,6 @@ discovery/.gradle
 discovery/build
 out/
 .gradle/
+go-quotes/quotes-windows-amd64.exe
+go-quotes/quotes-linux-amd64
+go-quotes/manifest-tool-windows-amd64.exe
